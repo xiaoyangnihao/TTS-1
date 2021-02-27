@@ -20,7 +20,7 @@ wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
 tar -xvjf LJSpeech-1.1.tar.bz2
 ```  
 
-0.2 Split the metadata.csv into train and eval subsets respectively metadata\_train.csv and metadata\_eval.csv.
+0.2 Split the metadata.csv into train and eval subsets (metadata\_train.csv and metadata\_eval.csv respectively).
 		
 ```bash
 shuf metadata.csv > metadata_shuf.csv
