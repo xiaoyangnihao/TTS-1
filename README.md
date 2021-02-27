@@ -2,9 +2,9 @@
 
 This repository contains code to train a End-to-End Speech Synthesis system, based on the Tactoron2 model with modifications as described in [Location Relative Attention Mechanisms for Robust Long-Form Speech Synthesis](https://arxiv.org/pdf/1910.10288.pdf).
 
-The system consists of two parts:
-	1. A Tacotron2 model with Dynamic Convolutional Attention which modifies the hybrid location sensitive attention mechanism to be purely location based, resulting in better generalization on long utterances. This model takes text (in the form of character sequence) as input and predicts a sequence of mel-spectrogram frames as output.
-	2. A WaveRNN based vocoder; which takes the mel-spectrogram predicted in the previous step as input and generates a waveform as output.
+The system consists of two parts:  
+	1. A Tacotron2 model with Dynamic Convolutional Attention which modifies the hybrid location sensitive attention mechanism to be purely location based, resulting in better generalization on long utterances. This model takes text (in the form of character sequence) as input and predicts a sequence of mel-spectrogram frames as output.  
+	2. A WaveRNN based vocoder; which takes the mel-spectrogram predicted in the previous step as input and generates a waveform as output.  
 
 To train the model we will be using the LJSpeech dataset, which is a single speaker English dataset consisting of ~24 hrs of speech and corresponding text transcripts. All model details, training configuration etc are specified in `config.yaml`
 
@@ -16,7 +16,7 @@ To train the model we will be using the LJSpeech dataset, which is a single spea
 		wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
 		tar -xvjf LJSpeech-1.1.tar.bz2
 
-		```
+		```  
 	2. Split the metadata.csv into train and eval subsets respectively metadata\_train.csv and metadata\_eval.csv.
 		```
 		shuf metadata.csv > metadata_shuf.csv
