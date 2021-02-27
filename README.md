@@ -8,25 +8,26 @@ The system consists of two parts:
 
 2. A WaveRNN based vocoder; which takes the mel-spectrogram predicted in the previous step as input and generates a waveform as output.
 
-To train the model we will be using the LJSpeech dataset, which is a single speaker English dataset consisting of ~24 hrs of speech and corresponding text transcripts. All model details, training configuration etc are specified in `config.yaml`
+All model details, training configuration etc are specified in `config.yaml`
 
 ## Getting started
 ### 0. Download dataset and make train/eval split
 
-- Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/):
+0.1 Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
 		
-		```bash
-		wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-		tar -xvjf LJSpeech-1.1.tar.bz2
-		```  
+```bash
+wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+tar -xvjf LJSpeech-1.1.tar.bz2
+```  
 
-- Split the metadata.csv into train and eval subsets respectively metadata\_train.csv and metadata\_eval.csv.
+0.2 Split the metadata.csv into train and eval subsets respectively metadata\_train.csv and metadata\_eval.csv.
 		
-		```bash
-		shuf metadata.csv > metadata_shuf.csv
-		head -n 12000 metadata_shuf.csv > metadata_train.csv
-		tail -n 1100 metadata_shuf.csv > metadata_val.csv
-		```
+```bash
+shuf metadata.csv > metadata_shuf.csv
+head -n 12000 metadata_shuf.csv > metadata_train.csv
+tail -n 1100 metadata_shuf.csv > metadata_val.csv
+```
+
 ### 1. Preprocessing
 
 COMING SOON
