@@ -1,0 +1,83 @@
+"""Configuration Parameters"""
+
+dataset = "ljspeech"
+
+# Audio processing configuration
+audio = {
+    "sampling_rate": 22050,
+    "max_db": 100,
+    "ref_db": 20,
+    "n_fft": 2048,
+    "win_length": 1100,  # 50 ms window length
+    "hop_length": 275,  # 12.5 ms frame shift
+    "n_mels": 80,
+    "fmin": 50,
+    "n_bits": 10,  # The bit depth of the signal
+}
+
+# TTS configuration
+tts_model = {
+    "char_embedding_dim": 256,
+    "prenet": [256, 128],
+    "dropout": 0.5,
+
+    # CBHG Encoder
+    "encoder": {
+        "K": 16,
+        "channels": 128,
+        "projection_channels": 128,
+        "num_highway": 4,
+        "highway_size": 128,
+        "gru_size": 128,
+    },
+
+    # Dynamic convolutional attention
+    "attention": {
+        "rnn_size": 256,
+        "hidden_size": 128,
+        "static_channels": 8,
+        "static_kernel_size": 21,
+        "dynamic_channels": 8,
+        "dynamic_kernel_size": 21,
+        "prior_length": 11,
+        "alpha": 0.1,
+        "beta": 0.9,
+    },
+
+    # Autoregressive decoder
+    "decoder": {
+        "rnn_size": 256,
+        "r": 2,
+    }
+}
+
+tts_training = {
+    "batch_size": 16,
+    "bucket_size_multiplier": 5,
+    "num_steps": 250000,
+    "checkpoint_interval": 10000,
+    "num_workers": 8,
+    "clip_grad_norm": 0.05,
+    "learning_rate": 1e-3,
+    "lr_scheduler_milestones": [20000, 40000, 100000, 150000, 200000],
+    "lr_scheduler_gamma": 0.5,
+},
+
+# Vocoder configuration
+vocoder_model = {
+    "audio_embedding_dim": 256,
+    "conditioning_rnn_size": 128,
+    "rnn_size": 896,
+    "fc_size": 1024,
+}
+
+vocoder_training = {
+    "batch_size": 16,
+    "num_steps": 250000,
+    "sample_frames": 24,
+    "learning_rate": 4e-4,
+    "lr_scheduler_step_size": 25000,
+    "lr_scheduler_gamma": 0.5,
+    "checkpoint_interval": 10000,
+    "num_workers": 8,
+}
