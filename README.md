@@ -4,12 +4,11 @@ This repository contains code to train a End-to-End Speech Synthesis system, bas
  
 The system consists of two parts:
 
-1. A Tacotron2 model with Dynamic Convolutional Attention which modifies the hybrid location sensitive attention mechanism to be purely location based, resulting in better generalization on long utterances. This model takes text (in the form of character sequence) as input and predicts a sequence of mel-spectrogram frames as output.
+1. A Tacotron model with Dynamic Convolutional Attention which modifies the hybrid location sensitive attention mechanism to be purely location based, resulting in better generalization on long utterances. This model takes text (in the form of character sequence) as input and predicts a sequence of mel-spectrogram frames as output.
 
 2. A WaveRNN based vocoder; which takes the mel-spectrogram predicted in the previous step as input and generates a waveform as output.
 
-All model details, training configuration etc are specified in `config.yaml`
-
+All audio processing parameters, model hyperparameters, training configuration etc are specified in `config/config.py`
 ## Getting started
 ### 0. Download dataset and make train/eval split
 
@@ -42,8 +41,9 @@ COMING SOON
 
 ## Acknowledgements
 
-The code in this repository is based on the code in the following repositories
+This code is based on the code in the following repositories
 1. [bshall/Tacotron](https://github.com/bshall/Tacotron)
+2. [mozilla/TTS](https://github.com/mozilla/TTS)
 
 ## References
 
