@@ -10,26 +10,32 @@ The system consists of two parts:
 
 All audio processing parameters, model hyperparameters, training configuration etc are specified in `config/config.py`
 ## Getting started
-### 0. Download dataset and make train/eval split
+### 0. Download dataset
 
-0.1 Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
+Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
 		
 ```bash
 wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
 tar -xvjf LJSpeech-1.1.tar.bz2
 ```  
 
-0.2 Split the metadata.csv into train and eval subsets (metadata\_train.csv and metadata\_eval.csv respectively).
-		
-```bash
-shuf metadata.csv > metadata_shuf.csv
-head -n 12000 metadata_shuf.csv > metadata_train.csv
-tail -n 1100 metadata_shuf.csv > metadata_val.csv
+### 1. Preprocessing dataset
+
+1.1 Preprocess the downloaded dataset and perform feature extraction on the wav files
+
+```python
+python preprocess.py \
+    --dataset_dir <Path to the root of the downloaded dataset> \
+    --out_dir <Output path to write the processed dataset>
 ```
 
-### 1. Preprocessing
-
-COMING SOON
+1.2 Split the processed dataset into train and eval subsets (split metadata.txt into metadata\_train.txt and metadata\_eval.txt respectively).
+		
+```bash
+shuf metadata.txt > metadata_shuf.txt
+head -n 12000 metadata_shuf.txt > metadata_train.txt
+tail -n 1100 metadata_shuf.txt > metadata_val.txt
+```
 
 ### 2. Training
 
