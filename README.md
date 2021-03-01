@@ -34,7 +34,7 @@ python preprocess.py \
 ```bash
 shuf metadata.txt > metadata_shuf.txt
 head -n 12000 metadata_shuf.txt > metadata_train.txt
-tail -n 1100 metadata_shuf.txt > metadata_val.txt
+tail -n 1100 metadata_shuf.txt > metadata_eval.txt
 ```
 
 ### 2. Training
