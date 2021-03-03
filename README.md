@@ -14,42 +14,41 @@ All audio processing parameters, model hyperparameters, training configuration e
 ## Train TTS from scratch
 1. Download dataset
 
-   Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
-		
-   ```bash
-   wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-   tar -xvjf LJSpeech-1.1.tar.bz2
-   ```  
+    Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
+    
+    ```bash
+    wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+    tar -xvjf LJSpeech-1.1.tar.bz2
+    ```  
 
 2. Preprocess the downloaded dataset and perform feature extraction on the wav files
 
-```python
-python preprocess.py \
-        --dataset_dir <Path to the root of the downloaded dataset> \
-        --out_dir <Output path to write the processed dataset>
-```
+    ```python
+    python preprocess.py \
+            --dataset_dir <Path to the root of the downloaded dataset> \
+            --out_dir <Output path to write the processed dataset>
+    ```
 
 3. Split the processed dataset into train and eval subsets (split metadata.txt into metadata\_train.txt and metadata\_eval.txt respectively).
 		
-```bash
-shuf metadata.txt > metadata_shuf.txt
-head -n 12000 metadata_shuf.txt > metadata_train.txt
-tail -n 1100 metadata_shuf.txt > metadata_eval.txt
-```
+    ```bash
+    shuf metadata.txt > metadata_shuf.txt
+    head -n 12000 metadata_shuf.txt > metadata_train.txt
+    tail -n 1100 metadata_shuf.txt > metadata_eval.txt
+    ```
 
 4. Train the seq2seq model
 
-COMING SOON
+    COMING SOON
 
 5. Train the vocoder model
 
-```python
-python train_vocoder \
-        --data_dir <Path to the processed dataset to be used to train the model> \
-        --checkpoint_dir <Path to location where training checkpoints will be saved> \
-        --resume_checkpoint_path <(Optional) If specified load checkpoint from path and resume training from that point>
-```
-    
+    ```python
+    python train_vocoder \
+            --data_dir <Path to the processed dataset to be used to train the model> \
+            --checkpoint_dir <Path to location where training checkpoints will be saved> \
+            --resume_checkpoint_path <(Optional) If specified load checkpoint from path and resume training from that point>
+    ```
 
 ## Acknowledgements
 
