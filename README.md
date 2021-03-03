@@ -21,7 +21,7 @@ tar -xvjf LJSpeech-1.1.tar.bz2
 
 ### 1. Preprocessing dataset
 
-1.1 Preprocess the downloaded dataset and perform feature extraction on the wav files
+#### 1.1 Preprocess the downloaded dataset and perform feature extraction on the wav files
 
 ```python
 python preprocess.py \
@@ -29,7 +29,7 @@ python preprocess.py \
     --out_dir <Output path to write the processed dataset>
 ```
 
-1.2 Split the processed dataset into train and eval subsets (split metadata.txt into metadata\_train.txt and metadata\_eval.txt respectively).
+#### 1.2 Split the processed dataset into train and eval subsets (split metadata.txt into metadata\_train.txt and metadata\_eval.txt respectively).
 		
 ```bash
 shuf metadata.txt > metadata_shuf.txt
@@ -38,8 +38,6 @@ tail -n 1100 metadata_shuf.txt > metadata_eval.txt
 ```
 
 ### 2. Training
-
-COMING SOON
 
 ### 3. Generation
 
