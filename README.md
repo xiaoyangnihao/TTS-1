@@ -14,12 +14,12 @@ All audio processing parameters, model hyperparameters, training configuration e
 ## Train TTS from scratch
 1. Download dataset
 
-Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
+   Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
 		
-```bash
-wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-tar -xvjf LJSpeech-1.1.tar.bz2
-```  
+   ```bash
+   wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+   tar -xvjf LJSpeech-1.1.tar.bz2
+   ```  
 
 2. Preprocess the downloaded dataset and perform feature extraction on the wav files
 
