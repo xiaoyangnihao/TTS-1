@@ -47,7 +47,7 @@ All audio processing parameters, model hyperparameters, training configuration e
     python train_vocoder \
             --data_dir <Path to the processed dataset to be used to train the model> \
             --checkpoint_dir <Path to location where training checkpoints will be saved> \
-            --resume_checkpoint_path <(Optional) If specified load checkpoint from path and resume training from that point>
+            --resume_checkpoint_path <If specified load checkpoint and resume training>
     ```
 
 ## Acknowledgements
