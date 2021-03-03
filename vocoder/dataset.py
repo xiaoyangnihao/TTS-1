@@ -36,8 +36,8 @@ class VocoderDataset(Dataset):
             os.path.join(train_data_dir, "metadata_train.txt"))
 
         self.train_data_dir = train_data_dir
-        self.sample_frames = cfg.sample_frames
-        self.hop_length = cfg.hop_length
+        self.sample_frames = cfg.vocoder_training["sample_frames"]
+        self.hop_length = cfg.audio["hop_length"]
 
     def __len__(self):
         return len(self.training_instances)
