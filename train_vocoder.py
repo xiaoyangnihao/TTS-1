@@ -109,7 +109,7 @@ def train_model(data_dir, checkpoint_dir, resume_checkpoint_path=None):
 
             avg_loss += (loss.item() - avg_loss) / idx
 
-            if global_step % cfg.checkpoint_interval == 0:
+            if global_step % cfg.vocoder_training["checkpoint_interval"] == 0:
                 save_checkpoint(checkpoint_dir, model, optimizer, scheduler,
                                 global_step)
 
