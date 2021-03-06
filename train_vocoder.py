@@ -114,8 +114,8 @@ def train_model(data_dir, checkpoint_dir, resume_checkpoint_path=None):
                                 global_step)
 
         print(
-            f"Epoch: {epoch}, Loss: {avg_loss:.4f}, Current lr: {scheduler.get_last_lr()}"
-        )
+            f"Epoch: {epoch}, Loss: {avg_loss:.4f}, Current lr: {scheduler.get_last_lr()}",
+            flush=True)
 
 
 if __name__ == "__main__":
