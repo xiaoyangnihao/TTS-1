@@ -18,14 +18,14 @@ audio = {
 # TTS configuration
 tts_model = {
     "char_embedding_dim": 256,
-    "prenet": [256, 128],
+    "prenet_layer_sizes": [256, 128],
     "dropout": 0.5,
 
     # CBHG Encoder
     "encoder": {
         "K": 16,
         "convbank_channels": 128,
-        "conv_projections": [128, 128],
+        "projection_channels": [128, 128],
         "num_highway_layers": 4,
         "highway_layer_size": 128,
         "gru_size": 128
