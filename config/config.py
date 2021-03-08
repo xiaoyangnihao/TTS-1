@@ -24,11 +24,11 @@ tts_model = {
     # CBHG Encoder
     "encoder": {
         "K": 16,
-        "channels": 128,
-        "projection_channels": 128,
-        "num_highways": 4,
-        "highway_size": 128,
-        "gru_size": 128,
+        "convbank_channels": 128,
+        "conv_projections": [128, 128],
+        "num_highway_layers": 4,
+        "highway_layer_size": 128,
+        "gru_size": 128
     },
 
     # Dynamic convolutional attention
