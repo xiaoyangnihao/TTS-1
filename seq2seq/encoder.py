@@ -7,102 +7,106 @@ from seq2seq.layers import BatchNormConv1D, Highway, PreNet
 
 
 class CBHG(nn.Module):
-    """1-D Convolution Bank + Highway Network + Residual Connections + Bidirectional GRU
+    """Bank of 1-D Convolutions + Highway networks + residual connections + Bidirectional GRU
     """
-    def __init__(self, input_channels, K, convbank_channels, conv_projections,
+    def __init__(self, in_dim, K, convbank_channels, projection_channels,
                  num_highway_layers, highway_layer_size, gru_size):
-        """Instantiate the CBHG layer
+        """Instantiate the CBHG block
         """
         super().__init__()
 
-        self.input_channels = input_channels
+        self.in_dim = in_dim
         self.K = K
         self.convbank_channels = convbank_channels
-        self.conv_projections = conv_projections
+        self.projection_channels = projection_channels
         self.num_highway_layers = num_highway_layers
         self.highway_layer_size = highway_layer_size
         self.gru_size = gru_size
 
-        # 1-D Convolution Bank
-        self.convbank = nn.ModuleList([
-            BatchNormConv1D(in_channels=input_channels,
+        # Bank of 1-D Convolutions
+        self.conv_bank = nn.ModuleList([
+            BatchNormConv1D(in_channels=in_dim,
                             out_channels=convbank_channels,
-                            kernel_size=k) for k in range(1, K + 1)
+                            kernel_size=k,
+                            stride=1,
+                            padding=k // 2,
+                            activation=nn.ReLU()) for k in range(1, K + 1)
         ])
 
         # Max pooling
-        self.maxpool = nn.MaxPool1d(kernel_size=2, stride=1, padding=1)
+        self.max_pool = nn.MaxPool1d(kernel_size=2, stride=1, padding=1)
 
-        # 1-D Convolutional Projections
-        channels = [K * convbank_channels] + conv_projections
-        activations = [True] * (len(conv_projections) - 1) + [False]
+        # 1-D Convolutional projections
+        sizes = [K * convbank_channels] + projection_channels
+        activations = [nn.ReLU()] * (len(projection_channels) - 1) + [None]
         self.conv_projections = nn.ModuleList([
-            BatchNormConv1D(in_channels=in_size,
-                            out_channels=out_size,
+            BatchNormConv1D(in_size,
+                            out_size,
                             kernel_size=3,
-                            activation=activation) for in_size, out_size,
-            activation in zip(channels, channels[1:], activations)
+                            stride=1,
+                            padding=1,
+                            activation=act)
+            for in_size, out_size, act in zip(sizes, sizes[1:], activations)
         ])
-
-        # Linear projection to highway
-        self.prehighway_projection = nn.Linear(
-            in_features=conv_projections[-1],
-            out_features=highway_layer_size,
-            bias=False) if conv_projections[-1] != highway_layer_size else None
 
         # Highway layer
-        self.highway = nn.ModuleList([
-            Highway(in_features=highway_layer_size,
-                    out_features=highway_layer_size)
-            for _ in range(num_highway_layers)
-        ])
+        self.pre_highway = nn.Linear(projection_channels[-1],
+                                     highway_layer_size,
+                                     bias=False)
+        self.highways = nn.ModuleList(
+            [Highway(highway_layer_size) for _ in range(num_highway_layers)])
 
         # Bidirectional GRU
         self.gru = nn.GRU(highway_layer_size,
                           gru_size,
+                          1,
                           batch_first=True,
                           bidirectional=True)
 
     def forward(self, x):
         """Forward pass
         """
-        x = x.transpose(1, 2).contiguous()
-
-        T = x.size(-1)
         residual = x
 
-        # 1-D Convolution bank
-        x = [conv(x)[:, :, :T] for conv in self.convbank]
-        x = torch.cat(x, dim=1)
+        if x.size(-1) == self.in_dim:
+            x = x.transpose(1, 2).contiguous()
 
-        # Maxpool
-        x = self.maxpool(x)
+        T = x.size(-1)
+
+        # Bank of 1-D Convolutions
+        x = torch.cat(
+            [conv_layer(x)[:, :, :T] for conv_layer in self.conv_bank], dim=1)
+        assert x.size(1) == self.in_dim * len(self.conv_bank)
+
+        # Max pooling
+        x = self.max_pool(x)[:, :, :T]
 
         # 1-D Convolution projections
-        x = self.conv_projections(x[:, :, :T])
+        for conv_layer in self.conv_projections:
+            x = conv_layer(x)
 
-        # Residual connections
-        x = x + residual
         x = x.transpose(1, 2).contiguous()
 
-        # Highway layers
-        if self.prehighway_projection is not None:
-            x = self.prehighway_projection(x)
-        x = self.highway(x)
+        if x.size(-1) != self.highway_layer_size:
+            x = self.pre_highway(x)
+
+        # Residual connection + Highway layers
+        x += residual
+        for highway_layer in self.highways:
+            x = highway_layer(x)
 
         # Bidirectional GRU
-        x, _ = self.gru(x)
+        outputs, _ = self.gru(x)
 
-        return x
+        return outputs
 
 
-class TacotronEncoder(nn.Module):
-    """Tacotron seq2seq encoder
+class Encoder(nn.Module):
+    """Tacotron encoder
     """
     def __init__(self, num_chars, char_embedding_dim, prenet_layer_sizes,
-                 dropout, cbhg_K, cbhg_convbank_channels,
-                 cbhg_conv_projections, cbhg_num_highway_layers,
-                 cbhg_highway_layer_size, cbhg_gru_size):
+                 dropout, K, convbank_channels, projection_channels,
+                 num_highway_layers, highway_layer_size, gru_size):
         """Instantiate the encoder
         """
         super().__init__()
@@ -111,30 +115,27 @@ class TacotronEncoder(nn.Module):
         self.char_embedding_dim = char_embedding_dim
         self.prenet_layer_sizes = prenet_layer_sizes
         self.dropout = dropout
-        self.cbhg_K = cbhg_K
-        self.cbhg_convbank_channels = cbhg_convbank_channels
-        self.cbhg_conv_projections = cbhg_conv_projections
-        self.cbhg_num_highway_layers = cbhg_num_highway_layers
-        self.cbhg_highway_layer_size = cbhg_highway_layer_size
-        self.cbhg_gru_size = cbhg_gru_size
+        self.K = K
+        self.convbank_channels = convbank_channels
+        self.projection_channels = projection_channels
+        self.num_highway_layers = num_highway_layers
+        self.highway_layer_size = highway_layer_size
+        self.gru_size = gru_size
 
-        # Embedding layer
         self.embedding_layer = nn.Embedding(num_embeddings=num_chars,
                                             embedding_dim=char_embedding_dim)
 
-        # Prenet
-        self.prenet = PreNet(in_size=char_embedding_dim,
+        self.prenet = PreNet(in_dim=char_embedding_dim,
                              layer_sizes=prenet_layer_sizes,
                              dropout=dropout)
 
-        # CBHG
-        self.cbhg = CBHG(input_channels=prenet_layer_sizes[-1],
-                         K=cbhg_K,
-                         convbank_channels=cbhg_convbank_channels,
-                         conv_projections=cbhg_conv_projections,
-                         num_highway_layers=cbhg_num_highway_layers,
-                         highway_layer_size=cbhg_highway_layer_size,
-                         gru_size=cbhg_gru_size)
+        self.cbhg = CBHG(in_dim=prenet_layer_sizes[-1],
+                         K=K,
+                         convbank_channels=convbank_channels,
+                         projection_channels=projection_channels,
+                         num_highway_layers=num_highway_layers,
+                         highway_layer_size=highway_layer_size,
+                         gru_size=gru_size)
 
     def forward(self, x):
         """Forward pass
