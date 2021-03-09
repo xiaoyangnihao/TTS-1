@@ -33,8 +33,8 @@ tts_model = {
 
     # Dynamic convolutional attention
     "attention": {
-        "rnn_size": 256,
-        "hidden_size": 128,
+        "query_dim": 256,
+        "attn_dim": 128,
         "static_channels": 8,
         "static_kernel_size": 21,
         "dynamic_channels": 8,
@@ -46,7 +46,8 @@ tts_model = {
 
     # Autoregressive decoder
     "decoder": {
-        "rnn_size": 256,
+        "attn_rnn_size": 256,
+        "decoder_rnn_size": 256,
         "r": 2,
     }
 }
