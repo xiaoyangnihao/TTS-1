@@ -33,7 +33,6 @@ tts_model = {
 
     # Dynamic convolutional attention
     "attention": {
-        "query_dim": 256,
         "attn_dim": 128,
         "static_channels": 8,
         "static_kernel_size": 21,
