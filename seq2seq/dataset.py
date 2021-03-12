@@ -36,7 +36,7 @@ class SortedSampler(samplers.Sampler):
     def __init__(self, data, sort_key):
         """Instantiate the sampler
         """
-        super().__init__()
+        super().__init__(data)
 
         self.data = data
         self.sort_key = sort_key
@@ -59,11 +59,10 @@ class BucketBatchSampler(samplers.BatchSampler):
                  drop_last):
         """Instantiate the Sampler
         """
-        super().__init__()
+        super().__init__(sampler, batch_size, drop_last)
 
         self.sort_key = sort_key
-        self.drop_last = drop_last
-        self.bucket_sampler = sampler.BatchSampler(
+        self.bucket_sampler = samplers.BatchSampler(
             sampler, min(batch_size * bucket_size_multiplier, len(sampler)),
             False)
 
@@ -116,14 +115,14 @@ class TTSDataset(Dataset):
 
         text = text_to_id(text, self.cmudict)
 
-        return (torch.FloatTensor(mel).transpose_(0, 1),
-                torch.LongTensor(text), index == self.max_length_index)
+        return (torch.Tensor(mel).transpose_(0, 1), torch.LongTensor(text),
+                index == self.max_length_index)
 
 
 def collate(batch, reduction_factor=2):
     """Collate and create padded batches
     """
-    mels, texts, attn_flags = batch[0], batch[1], batch[2]
+    mels, texts, attn_flags = zip(*batch)
 
     mels, texts = list(mels), list(texts)
 
