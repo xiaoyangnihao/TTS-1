@@ -177,7 +177,8 @@ class Decoder(nn.Module):
                                          memory).squeeze(1)
 
         # Decoder RNNs
-        x = self.linear(torch.cat((attention_context, attn_rnn_h), dim=-1))
+        x = self.decoder_projection(
+            torch.cat((attention_context, attn_rnn_h), dim=-1))
 
         decoder_rnn1_h, decoder_rnn1_c = self.decoder_rnn1(x, decoder_rnn1_hx)
         decoder_rnn1_h = F.dropout(decoder_rnn1_h,
