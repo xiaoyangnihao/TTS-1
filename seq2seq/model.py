@@ -1,5 +1,6 @@
 """Tacotron model"""
 
+import config.config as cfg
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,54 +12,52 @@ from seq2seq.encoder import Encoder
 class Tacotron(nn.Module):
     """Tacotron model
     """
-    def __init__(self, cfg, num_chars):
+    def __init__(self, num_chars):
         """Instantiate the Tacotron model
         """
         super().__init__()
 
         self.num_chars = num_chars
         self.cfg = cfg
-        self.n_mels = cfg["audio"]["n_mels"]
-        self.attn_rnn_size = cfg["tts_model"]["decoder"]["attn_rnn_size"]
-        self.decoder_rnn_size = cfg["tts_model"]["decoder"]["decoder_rnn_size"]
-        self.memory_dim = 2 * cfg["tts_model"]["encoder"]["gru_size"]
-        self.reduction_factor = cfg["tts_model"]["decoder"]["r"]
+        self.n_mels = cfg.audio["n_mels"]
+        self.attn_rnn_size = cfg.tts_model["decoder"]["attn_rnn_size"]
+        self.decoder_rnn_size = cfg.tts_model["decoder"]["decoder_rnn_size"]
+        self.memory_dim = 2 * cfg.tts_model["encoder"]["gru_size"]
+        self.reduction_factor = cfg.tts_model["decoder"]["r"]
 
         # Tacotron seq2seq Encoder
         self.encoder = Encoder(
             num_chars=num_chars,
-            char_embedding_dim=cfg["tts_model"]["char_embedding_dim"],
-            prenet_layer_sizes=cfg["tts_model"]["prenet_layer_sizes"],
-            dropout=cfg["tts_model"]["dropout"],
-            K=cfg["tts_model"]["encoder"]["K"],
-            convbank_channels=cfg["tts_model"]["encoder"]["convbank_channels"],
-            projection_channels=cfg["tts_model"]["encoder"]
+            char_embedding_dim=cfg.tts_model["char_embedding_dim"],
+            prenet_layer_sizes=cfg.tts_model["prenet_layer_sizes"],
+            dropout=cfg.tts_model["dropout"],
+            K=cfg.tts_model["encoder"]["K"],
+            convbank_channels=cfg.tts_model["encoder"]["convbank_channels"],
+            projection_channels=cfg.tts_model["encoder"]
             ["projection_channels"],
-            num_highway_layers=cfg["tts_model"]["encoder"]
-            ["num_highway_layers"],
-            highway_layer_size=cfg["tts_model"]["encoder"]
-            ["highway_layer_size"],
-            gru_size=cfg["tts_model"]["encoder"]["gru_size"])
+            num_highway_layers=cfg.tts_model["encoder"]["num_highway_layers"],
+            highway_layer_size=cfg.tts_model["encoder"]["highway_layer_size"],
+            gru_size=cfg.tts_model["encoder"]["gru_size"])
 
         # Decoder
         self.decoder = Decoder(
-            n_mels=cfg["audio"]["n_mels"],
-            memory_dim=2 * cfg["tts_model"]["encoder"]["gru_size"],
-            prenet_layer_sizes=cfg["tts_model"]["prenet_layer_sizes"],
-            dropout=cfg["tts_model"]["dropout"],
-            attn_dim=cfg["tts_model"]["attention"]["attn_dim"],
-            static_channels=cfg["tts_model"]["attention"]["static_channels"],
-            static_kernel_size=cfg["tts_model"]["attention"]
+            n_mels=cfg.audio["n_mels"],
+            memory_dim=2 * cfg.tts_model["encoder"]["gru_size"],
+            prenet_layer_sizes=cfg.tts_model["prenet_layer_sizes"],
+            dropout=cfg.tts_model["dropout"],
+            attn_dim=cfg.tts_model["attention"]["attn_dim"],
+            static_channels=cfg.tts_model["attention"]["static_channels"],
+            static_kernel_size=cfg.tts_model["attention"]
             ["static_kernel_size"],
-            dynamic_channels=cfg["tts_model"]["attention"]["dynamic_channels"],
-            dynamic_kernel_size=cfg["tts_model"]["attention"]
+            dynamic_channels=cfg.tts_model["attention"]["dynamic_channels"],
+            dynamic_kernel_size=cfg.tts_model["attention"]
             ["dynamic_kernel_size"],
-            prior_length=cfg["tts_model"]["attention"]["prior_length"],
-            alpha=cfg["tts_model"]["attention"]["alpha"],
-            beta=cfg["tts_model"]["attention"]["beta"],
-            attn_rnn_size=cfg["tts_model"]["decoder"]["attn_rnn_size"],
-            decoder_rnn_size=cfg["tts_model"]["decoder"]["decoder_rnn_size"],
-            r=cfg["tts_model"]["decoder"]["r"])
+            prior_length=cfg.tts_model["attention"]["prior_length"],
+            alpha=cfg.tts_model["attention"]["alpha"],
+            beta=cfg.tts_model["attention"]["beta"],
+            attn_rnn_size=cfg.tts_model["decoder"]["attn_rnn_size"],
+            decoder_rnn_size=cfg.tts_model["decoder"]["decoder_rnn_size"],
+            r=cfg.tts_model["decoder"]["r"])
 
     def forward(self, texts, mels):
         """Forward pass
