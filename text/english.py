@@ -22,7 +22,7 @@ _cmudict_symbols = [
 _arpabet = ["@" + s for s in _cmudict_symbols]
 
 # Get list of symbols to be used for text processing and create mapping
-symbols = [_pad, _eos
+symbols = [_pad, _eos, _unk
            ] + list(_punctuation) + list(_english_characters) + _arpabet
 
 symbol_to_id = {symb: index for index, symb in enumerate(symbols)}
