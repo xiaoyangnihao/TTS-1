@@ -61,7 +61,7 @@ tts_training = {
     "learning_rate": 1e-3,
     "lr_scheduler_milestones": [20000, 40000, 100000, 150000, 200000],
     "lr_scheduler_gamma": 0.5,
-},
+}
 
 # Vocoder configuration
 vocoder_model = {
