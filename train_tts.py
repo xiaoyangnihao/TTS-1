@@ -183,7 +183,7 @@ if __name__ == "__main__":
 
     data_dir = args.data_dir
     checkpoint_dir = args.checkpoint_dir
-    alignments_dir = args.alignment_dir
+    alignments_dir = args.alignments_dir
     resume_checkpoint_path = args.resume_checkpoint_path
 
     train_model(data_dir, checkpoint_dir, alignments_dir,
