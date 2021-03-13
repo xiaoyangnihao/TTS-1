@@ -115,8 +115,8 @@ class TTSDataset(Dataset):
 
         text = text_to_id(text, self.cmudict)
 
-        return (torch.Tensor(mel).transpose_(0, 1), torch.LongTensor(text),
-                index == self.max_length_index)
+        return (torch.FloatTensor(mel).transpose_(0, 1),
+                torch.LongTensor(text), index == self.max_length_index)
 
 
 def collate(batch, reduction_factor=2):
