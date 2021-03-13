@@ -2,18 +2,16 @@
 
 import argparse
 import os
-from functools import partial
 
 import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.utils.data.sampler as samplers
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 
 import config.config as cfg
-from seq2seq.dataset import BucketBatchSampler, TTSDataset, collate
+from seq2seq.dataset import TTSDataset, collate
 from seq2seq.model import Tacotron
 from text.english import symbol_to_id
 
@@ -97,18 +95,17 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
 
     # Instantiate the dataloader
     dataset = TTSDataset(data_dir)
-    sampler = samplers.RandomSampler(dataset)
-    batch_sampler = BucketBatchSampler(
-        sampler=sampler,
-        batch_size=cfg.tts_training["batch_size"],
-        drop_last=True,
-        sort_key=dataset.sort_key,
-        bucket_size_multiplier=cfg.tts_training["bucket_size_multiplier"])
-    collate_fn = partial(collate,
-                         reduction_factor=cfg.tts_model["decoder"]["r"])
+    # sampler = samplers.RandomSampler(dataset)
+    # batch_sampler = BucketBatchSampler(
+    #     sampler=sampler,
+    #     batch_size=cfg.tts_training["batch_size"],
+    #     drop_last=True,
+    #     sort_key=dataset.sort_key,
+    #     bucket_size_multiplier=cfg.tts_training["bucket_size_multiplier"])
+    # collate_fn = partial(collate,
+    #                      reduction_factor=cfg.tts_model["decoder"]["r"])
     loader = DataLoader(dataset,
-                        batch_sampler=batch_sampler,
-                        collate_fn=collate_fn,
+                        collate_fn=collate,
                         num_workers=cfg.tts_training["num_workers"],
                         pin_memory=True)
 
