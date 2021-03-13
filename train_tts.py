@@ -95,16 +95,8 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
 
     # Instantiate the dataloader
     dataset = TTSDataset(data_dir)
-    # sampler = samplers.RandomSampler(dataset)
-    # batch_sampler = BucketBatchSampler(
-    #     sampler=sampler,
-    #     batch_size=cfg.tts_training["batch_size"],
-    #     drop_last=True,
-    #     sort_key=dataset.sort_key,
-    #     bucket_size_multiplier=cfg.tts_training["bucket_size_multiplier"])
-    # collate_fn = partial(collate,
-    #                      reduction_factor=cfg.tts_model["decoder"]["r"])
     loader = DataLoader(dataset,
+                        batch_size=cfg.tts_training["batch_size"],
                         collate_fn=collate,
                         num_workers=cfg.tts_training["num_workers"],
                         pin_memory=True)
