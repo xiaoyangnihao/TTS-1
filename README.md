@@ -39,7 +39,13 @@ All audio processing parameters, model hyperparameters, training configuration e
 
 4. Train the seq2seq model
 
-    COMING SOON
+    ```python
+    python train_tts.py \
+            --data_dir <Path to the processed dataset to be used to train the model> \
+            --checkpoint_dir <Path to location where training checkpoints will be saved> \
+            --alignments_dir <Path to the location where training alignments will be saved> \
+            --resume_checkpoint_path <If specified load checkpoint and resume training>
+    ```
 
 5. Train the vocoder model
 
