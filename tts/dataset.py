@@ -49,7 +49,7 @@ class SortedSampler(samplers.Sampler):
         return iter(self.sorted_indices)
 
 
-class BucketBatchSamplers(samplers.BatchSampler):
+class BucketBatchSampler(samplers.BatchSampler):
     """Adapted from https://github.com/PetrochukM/PyTorch-NLP
     """
     def __init__(self, sampler, batch_size, drop_last, sort_key,
