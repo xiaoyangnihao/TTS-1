@@ -72,7 +72,7 @@ class BucketBatchSampler(samplers.BatchSampler):
 
     def __len__(self):
         if self.drop_last:
-            return len(self.samplers) // self.batch_size
+            return len(self.sampler) // self.batch_size
         else:
             return math.ceil(len(self.sampler) / self.batch_size)
 
@@ -114,7 +114,7 @@ class TTSDataset(Dataset):
                 index == self.max_length_index)
 
 
-def collate(batch, reduction_factor=2):
+def collate(batch):
     """Collate and create padded batches
     """
     mels, texts, attn_flags = zip(*batch)
@@ -122,8 +122,7 @@ def collate(batch, reduction_factor=2):
     mels, texts = list(mels), list(texts)
 
     # Pad the batch to a muliple of reduction factor
-    if len(mels[0]) % reduction_factor != 0:
-        mels[0] = F.pad(mels[0], (0, 0, 0, reduction_factor - 1))
+    mels[0] = F.pad(mels[0], (0, 0, 0, 0))
 
     mel_lengths = [len(mel) for mel in mels]
     text_lengths = [len(text) for text in texts]
