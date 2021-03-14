@@ -40,8 +40,6 @@ class BatchNormConv1D(nn.Module):
                  in_channels,
                  out_channels,
                  kernel_size,
-                 stride,
-                 padding,
                  activation=None):
         """Instantiate the layer
         """
@@ -50,18 +48,16 @@ class BatchNormConv1D(nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.kernel_size = kernel_size
-        self.stride = stride
-        self.padding = padding
         self.activation = activation
 
         self.conv = nn.Conv1d(in_channels,
                               out_channels,
                               kernel_size=kernel_size,
-                              stride=stride,
-                              padding=padding,
+                              stride=1,
+                              padding=kernel_size // 2,
                               bias=False)
 
-        self.batchnorm = nn.BatchNorm1d(out_channels, momentum=0.99, eps=1e-3)
+        self.batchnorm = nn.BatchNorm1d(out_channels)
 
     def forward(self, x):
         """Forward pass
