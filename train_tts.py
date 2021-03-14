@@ -106,8 +106,7 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
         sort_key=dataset.sort_key,
         bucket_size_multiplier=cfg.tts_training["bucket_size_multiplier"])
 
-    collate_fn = partial(collate,
-                         reduction_factor=cfg.tts_model["decoder"]["r"])
+    collate_fn = partial(collate)
 
     loader = DataLoader(dataset,
                         batch_sampler=batch_sampler,
