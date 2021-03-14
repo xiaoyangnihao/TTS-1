@@ -2,18 +2,20 @@
 
 import argparse
 import os
+from functools import partial
 
 import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+import torch.utils.data.sampler as samplers
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 
 import config.config as cfg
-from seq2seq.dataset import TTSDataset, collate
-from seq2seq.model import Tacotron
 from text.english import symbol_to_id
+from tts.dataset import BucketBatchSampler, TTSDataset, collate
+from tts.model import Tacotron
 
 
 def save_checkpoint(checkpoint_dir, model, optimizer, scheduler, step):
@@ -95,9 +97,21 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
 
     # Instantiate the dataloader
     dataset = TTSDataset(data_dir)
+    sampler = samplers.RandomSampler(dataset)
+
+    batch_sampler = BucketBatchSampler(
+        sampler=sampler,
+        batch_size=cfg.tts_training["batch_size"],
+        drop_last=True,
+        sort_key=dataset.sort_key,
+        bucket_size_multiplier=cfg.tts_training["bucket_size_multiplier"])
+
+    collate_fn = partial(collate,
+                         reduction_factor=cfg.tts_model["decoder"]["r"])
+
     loader = DataLoader(dataset,
-                        batch_size=cfg.tts_training["batch_size"],
-                        collate_fn=collate,
+                        batch_sampler=batch_sampler,
+                        collate_fn=collate_fn,
                         num_workers=cfg.tts_training["num_workers"],
                         pin_memory=True)
 
@@ -130,15 +144,15 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
                 save_checkpoint(checkpoint_dir, model, optimizer, scheduler,
                                 global_step)
 
-            if attn_flags:
-                index = attn_flags[0]
-                alignment = alignments[
-                    index, :text_lengths[index], :mel_lengths[index] // 2]
-                alignment = alignment.detach().cpu().numpy()
+                if attn_flags:
+                    index = attn_flags[0]
+                    alignment = alignments[
+                        index, :text_lengths[index], :mel_lengths[index] // 2]
+                    alignment = alignment.detach().cpu().numpy()
 
-                alignment_path = os.path.join(
-                    alignments_dir, f"model_step{global_step:09d}.png")
-                log_alignment(alignment, alignment_path)
+                    alignment_path = os.path.join(
+                        alignments_dir, f"model_step{global_step:09d}.png")
+                    log_alignment(alignment, alignment_path)
 
         print(
             f"Epoch: {epoch}, Loss: {avg_loss:.4f}, Current lr: {scheduler.get_last_lr()}",
