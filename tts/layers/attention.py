@@ -13,7 +13,7 @@ class DynamicConvolutionAttention(nn.Module):
                  query_dim,
                  memory_dim,
                  attn_dim,
-                 static_channnels,
+                 static_channels,
                  static_kernel_size,
                  dynamic_channels,
                  dynamic_kernel_size,
@@ -27,7 +27,7 @@ class DynamicConvolutionAttention(nn.Module):
         self.query_dim = query_dim
         self.memory_dim = memory_dim
         self.attn_dim = attn_dim
-        self.static_channels = static_channnels
+        self.static_channels = static_channels
         self.static_kernel_size = static_kernel_size
         self.dynamic_channels = dynamic_channels
         self.dynamic_kernel_size = dynamic_kernel_size
@@ -41,12 +41,12 @@ class DynamicConvolutionAttention(nn.Module):
                                    bias=False)
 
         self.static_filter = nn.Conv1d(1,
-                                       static_channnels,
+                                       static_channels,
                                        static_kernel_size,
                                        padding=(static_kernel_size - 1) // 2,
                                        bias=False)
 
-        self.static_filter_layer = nn.Linear(static_channnels,
+        self.static_filter_layer = nn.Linear(static_channels,
                                              attn_dim,
                                              bias=False)
         self.dynamic_filter_layer = nn.Linear(dynamic_channels, attn_dim)
