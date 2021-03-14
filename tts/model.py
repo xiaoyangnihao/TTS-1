@@ -23,7 +23,6 @@ class Tacotron(nn.Module):
         self.attn_rnn_size = cfg.tts_model["decoder"]["attn_rnn_size"]
         self.decoder_rnn_size = cfg.tts_model["decoder"]["decoder_rnn_size"]
         self.memory_dim = 2 * cfg.tts_model["encoder"]["gru_size"]
-        self.reduction_factor = cfg.tts_model["decoder"]["r"]
 
         # Tacotron seq2seq Encoder
         self.encoder = Encoder(
@@ -57,8 +56,7 @@ class Tacotron(nn.Module):
             alpha=cfg.tts_model["attention"]["alpha"],
             beta=cfg.tts_model["attention"]["beta"],
             decoder_rnn_size=cfg.tts_model["decoder"]["decoder_rnn_size"],
-            zoneout=cfg.tts_model["zoneout"],
-            r=cfg.tts_model["decoder"]["r"])
+            zoneout=cfg.tts_model["zoneout"])
 
     def forward(self, texts, mels):
         """Forward pass
@@ -98,7 +96,7 @@ class Tacotron(nn.Module):
         go_frame = torch.zeros(B, N, device=texts.device)
 
         ys, attention = [], []
-        for t in range(0, T, self.reduction_factor):
+        for t in range(0, T):
             # Teacher forcing (use the previous timestep ground truth as input for the current timestep)
             y = mels[t - 1] if t > 0 else go_frame
 
@@ -144,7 +142,7 @@ class Tacotron(nn.Module):
         go_frame = torch.zeros(B, self.n_mels, device=text.device)
 
         ys, attention = [], []
-        for t in range(0, max_length, self.reduction_factor):
+        for t in range(0, max_length):
             # Use previous timestep prediction as input for current timestep
             y = ys[-1][:, :, -1] if t > 0 else go_frame
 
