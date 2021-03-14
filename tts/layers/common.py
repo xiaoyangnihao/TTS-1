@@ -54,12 +54,11 @@ class BatchNormConv1D(nn.Module):
         self.padding = padding
         self.activation = activation
 
-        self.padder = nn.ConstantPad1d(padding, 0)
         self.conv = nn.Conv1d(in_channels,
                               out_channels,
                               kernel_size=kernel_size,
                               stride=stride,
-                              padding=0,
+                              padding=padding,
                               bias=False)
 
         self.batchnorm = nn.BatchNorm1d(out_channels, momentum=0.99, eps=1e-3)
@@ -67,12 +66,12 @@ class BatchNormConv1D(nn.Module):
     def forward(self, x):
         """Forward pass
         """
-        x = self.padder(x)
         x = self.conv(x)
-        x = self.batchnorm(x)
 
         if self.activation is not None:
             x = self.activation(x)
+
+        x = self.batchnorm(x)
 
         return x
 
