@@ -1,4 +1,4 @@
-"""Tacotron layers"""
+"""Common layers"""
 
 import torch.nn as nn
 
