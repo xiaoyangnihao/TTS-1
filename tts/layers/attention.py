@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from scipy.stats import betabinom
 
 
-class DynamicConvolutionAttenion(nn.Module):
+class DynamicConvolutionAttention(nn.Module):
     """Dynamic Convolutional Attention
     """
     def __init__(self,
