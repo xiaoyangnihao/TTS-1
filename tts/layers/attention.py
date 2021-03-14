@@ -59,6 +59,14 @@ class DynamicConvolutionAttenion(nn.Module):
         prior = betabinom.pmf(range(prior_len), prior_len - 1, alpha, beta)
         self.register_buffer("prior", torch.FloatTensor(prior).flip(0))
 
+    def _init_states(self, memory):
+        """Initialize the attention states
+        """
+        B, T = memory.size(0), memory.size(1)
+
+        self.attention_weights = torch.zeros([B, T], device=memory.device)
+        self.attention_weights[:, 0] = 1
+
     def forward(self, query, memory, mask):
         """Forward pass
         """
