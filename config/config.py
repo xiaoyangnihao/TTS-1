@@ -20,6 +20,7 @@ tts_model = {
     "char_embedding_dim": 256,
     "prenet_layer_sizes": [256, 128],
     "dropout": 0.5,
+    "zoneout": 0.1,
 
     # CBHG Encoder
     "encoder": {
