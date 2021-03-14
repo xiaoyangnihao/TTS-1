@@ -20,7 +20,7 @@ class Decoder(nn.Module):
     def __init__(self, n_mels, memory_dim, prenet_layer_sizes, dropout,
                  attn_rnn_size, attn_dim, static_channels, static_kernel_size,
                  dynamic_channels, dynamic_kernel_size, prior_len, alpha, beta,
-                 decoder_rnn_size, zoneout, r):
+                 decoder_rnn_size, zoneout):
         """Instantiate the decoder
         """
         super().__init__()
@@ -40,7 +40,6 @@ class Decoder(nn.Module):
         self.beta = beta
         self.decoder_rnn_size = decoder_rnn_size
         self.zoneout = zoneout
-        self.r = r
 
         # Prenet
         self.prenet = PreNet(in_dim=n_mels,
@@ -74,7 +73,7 @@ class Decoder(nn.Module):
 
         # Output projection
         self.output_projection = nn.Linear(decoder_rnn_size,
-                                           n_mels * r,
+                                           n_mels,
                                            bias=False)
 
     def forward(self, y, memory, attention_weights, attention_context,
@@ -82,7 +81,6 @@ class Decoder(nn.Module):
         """Forward pass
         """
         B, N = y.size()
-
         # Prenet
         y = self.prenet(y)
 
@@ -119,7 +117,7 @@ class Decoder(nn.Module):
         decoder_input = decoder_input + decoder_rnn2_h
 
         # Output projection
-        y = self.output_projection(decoder_input).view(B, N, 2)
+        y = self.output_projection(decoder_input).view(B, N, 1)
 
         return y, attention_weights, attention_context, (
             attn_rnn_h, attn_rnn_c), (decoder_rnn1_h,
