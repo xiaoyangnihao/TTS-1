@@ -72,7 +72,7 @@ vocoder_model = {
 }
 
 vocoder_training = {
-    "batch_size": 16,
+    "batch_size": 64,
     "num_steps": 250000,
     "sample_frames": 24,
     "learning_rate": 4e-4,
