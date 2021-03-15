@@ -4,6 +4,7 @@ import argparse
 import os
 
 import torch
+import torch.cuda.amp as amp
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -13,13 +14,14 @@ from vocoder.dataset import VocoderDataset
 from vocoder.model import WaveRNN
 
 
-def save_checkpoint(checkpoint_dir, model, optimizer, scheduler, step):
+def save_checkpoint(checkpoint_dir, model, optimizer, scheduler, scaler, step):
     """Write checkpoint to disk
     """
     checkpoint_state = {
         "model": model.state_dict(),
         "optimizer": optimizer.state_dict(),
         "scheduler": scheduler.state_dict(),
+        "scaler": scaler.state_dict(),
         "step": step,
     }
 
@@ -29,7 +31,7 @@ def save_checkpoint(checkpoint_dir, model, optimizer, scheduler, step):
     print(f"Written checkpoint: {checkpoint_path} to disk")
 
 
-def load_checkpoint(checkpoint_path, model, optimizer, scheduler):
+def load_checkpoint(checkpoint_path, model, optimizer, scaler, scheduler):
     """Load the checkpoint from the disk
     """
     print(f"Loading checkpoint: {checkpoint_path} from disk")
@@ -38,6 +40,7 @@ def load_checkpoint(checkpoint_path, model, optimizer, scheduler):
 
     model.load_state_dict(checkpoint["model"])
     optimizer.load_state_dict(checkpoint["optimizer"])
+    scaler.load_state_dict(checkpoint["scaler"])
     scheduler.load_state_dict(checkpoint["scheduler"])
 
     return checkpoint["step"]
@@ -71,9 +74,12 @@ def train_model(data_dir, checkpoint_dir, resume_checkpoint_path=None):
         optimizer, cfg.vocoder_training["lr_scheduler_step_size"],
         cfg.vocoder_training["lr_scheduler_gamma"])
 
+    # Instantiate scaler (for mixed precision training)
+    scaler = amp.GradScaler()
+
     if resume_checkpoint_path is not None:
         global_step = load_checkpoint(resume_checkpoint_path, model, optimizer,
-                                      scheduler)
+                                      scaler, scheduler)
     else:
         global_step = 0
 
@@ -98,11 +104,13 @@ def train_model(data_dir, checkpoint_dir, resume_checkpoint_path=None):
 
             optimizer.zero_grad()
 
-            wav_hat = model(qwavs[:, :-1], mels)
-            loss = F.cross_entropy(wav_hat.transpose(1, 2), qwavs[:, 1:])
+            with amp.autocast():
+                wav_hat = model(qwavs[:, :-1], mels)
+                loss = F.cross_entropy(wav_hat.transpose(1, 2), qwavs[:, 1:])
 
-            loss.backward()
-            optimizer.step()
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
             scheduler.step()
 
             global_step += 1
