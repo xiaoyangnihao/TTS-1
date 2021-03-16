@@ -48,12 +48,12 @@ tts_model = {
     "decoder": {
         "attn_rnn_size": 256,
         "decoder_rnn_size": 256,
+        "reduction_factor": 2,
     }
 }
 
 tts_training = {
-    "batch_size": 16,
-    "bucket_size_multiplier": 5,
+    "batch_size": 64,
     "num_steps": 250000,
     "checkpoint_interval": 10000,
     "num_workers": 8,
