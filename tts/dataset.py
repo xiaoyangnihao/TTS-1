@@ -99,4 +99,5 @@ class TTSDataset(Dataset):
         mels = torch.FloatTensor(mels)
         mel_lengths = torch.LongTensor(mel_lengths)
 
-        return texts, text_lengths, mels, mel_lengths
+        return texts, text_lengths, mels.transpose_(
+            1, 2).contiguous(), mel_lengths
