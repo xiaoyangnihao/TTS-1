@@ -2,28 +2,29 @@
 
 import argparse
 import os
-from functools import partial
+import random
 
 import matplotlib.pyplot as plt
 import torch
+import torch.cuda.amp as amp
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.utils.data.sampler as samplers
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 
 import config.config as cfg
 from text.english import symbol_to_id
-from tts.dataset import BucketBatchSampler, TTSDataset, collate
+from tts.dataset import TTSDataset
 from tts.model import Tacotron
 
 
-def save_checkpoint(checkpoint_dir, model, optimizer, scheduler, step):
+def save_checkpoint(checkpoint_dir, model, optimizer, scaler, scheduler, step):
     """Write checkpoint to disk
     """
     checkpoint_state = {
         "model": model.state_dict(),
         "optimizer": optimizer.state_dict(),
+        "scaler": scaler.state_dict(),
         "scheduler": scheduler.state_dict(),
         "step": step,
     }
@@ -34,7 +35,7 @@ def save_checkpoint(checkpoint_dir, model, optimizer, scheduler, step):
     print(f"Written checkpoint: {checkpoint_path} to disk")
 
 
-def load_checkpoint(checkpoint_path, model, optimizer, scheduler):
+def load_checkpoint(checkpoint_path, model, optimizer, scaler, scheduler):
     """Load the checkpoint from the disk
     """
     print(f"Loading checkpoint: {checkpoint_path} from disk")
@@ -43,6 +44,7 @@ def load_checkpoint(checkpoint_path, model, optimizer, scheduler):
 
     model.load_state_dict(checkpoint["model"])
     optimizer.load_state_dict(checkpoint["optimizer"])
+    scaler.load_state_dict(checkpoint["scaler"])
     scheduler.load_state_dict(checkpoint["scheduler"])
 
     return checkpoint["step"]
@@ -84,6 +86,7 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
     # Instantiate the optimizer and learning rate scheduler
     optimizer = optim.Adam(model.parameters(),
                            lr=cfg.vocoder_training["learning_rate"])
+    scaler = amp.GradScaler()
     scheduler = optim.lr_scheduler.MultiStepLR(
         optimizer=optimizer,
         milestones=cfg.tts_training["lr_scheduler_milestones"],
@@ -91,27 +94,18 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
 
     if resume_checkpoint_path is not None:
         global_step = load_checkpoint(resume_checkpoint_path, model, optimizer,
-                                      scheduler)
+                                      scaler, scheduler)
     else:
         global_step = 0
 
     # Instantiate the dataloader
-    dataset = TTSDataset(data_dir)
-    sampler = samplers.RandomSampler(dataset)
-
-    batch_sampler = BucketBatchSampler(
-        sampler=sampler,
-        batch_size=cfg.tts_training["batch_size"],
-        drop_last=True,
-        sort_key=dataset.sort_key,
-        bucket_size_multiplier=cfg.tts_training["bucket_size_multiplier"])
-
-    collate_fn = partial(collate)
-
+    dataset = TTSDataset(data_dir,
+                         cfg.tts_model["decoder"]["reduction_factor"])
     loader = DataLoader(dataset,
-                        batch_sampler=batch_sampler,
-                        collate_fn=collate_fn,
+                        batch_size=cfg.tts_training["batch_size"],
                         num_workers=cfg.tts_training["num_workers"],
+                        shuffle=True,
+                        collate_fn=dataset.collate,
                         pin_memory=True)
 
     num_epochs = cfg.tts_training["num_steps"] // len(loader) + 1
@@ -126,13 +120,16 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
 
             optimizer.zero_grad()
 
-            ys, alignments = model(texts, mels)
-            loss = F.l1_loss(ys, mels)
+            with amp.autocast():
+                ys, alignments = model(texts, mels)
+                loss = F.l1_loss(ys, mels)
 
-            loss.backward()
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
             clip_grad_norm_(model.parameters(),
                             cfg.tts_training["clip_grad_norm"])
-            optimizer.step()
+            scaler.step(optimizer)
+            scaler.update()
             scheduler.step()
 
             global_step += 1
@@ -140,18 +137,18 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
             avg_loss += (loss.item() - avg_loss) / idx
 
             if global_step % cfg.tts_training["checkpoint_interval"] == 0:
-                save_checkpoint(checkpoint_dir, model, optimizer, scheduler,
-                                global_step)
+                save_checkpoint(checkpoint_dir, model, optimizer, scaler,
+                                scheduler, global_step)
 
-                if attn_flags:
-                    index = attn_flags[0]
-                    alignment = alignments[
-                        index, :text_lengths[index], :mel_lengths[index] // 2]
-                    alignment = alignment.detach().cpu().numpy()
+            index = 0
+            alignment = alignments[
+                index, :text_lengths[index], :mel_lengths[index] //
+                cfg.tts_model["decoder"]["reduction_factor"]]
+            alignment = alignment.detach().cpu().numpy()
 
-                    alignment_path = os.path.join(
-                        alignments_dir, f"model_step{global_step:09d}.png")
-                    log_alignment(alignment, alignment_path)
+            alignment_path = os.path.join(alignments_dir,
+                                          f"model_step{global_step:09d}.png")
+            log_alignment(alignment, alignment_path)
 
         print(
             f"Epoch: {epoch}, Loss: {avg_loss:.4f}, Current lr: {scheduler.get_last_lr()}",
