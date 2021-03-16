@@ -62,7 +62,7 @@ class Tacotron(nn.Module):
     def forward(self, texts, mels):
         """Forward pass
         """
-        # Group multiple frames in mel as per reduction factor
+        # Group multiple frames in mels as per reduction factor
         mels = mels.view(mels.size(0), -1,
                          mels.size(-1) // self.reduction_factor)
 
