@@ -114,10 +114,10 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
     for epoch in range(start_epoch, num_epochs + 1):
         avg_loss = 0
 
-        for idx, (texts, text_lengths, mels, mel_lengths,
-                  attn_flags) in enumerate(loader, 1):
+        for idx, (texts, text_lengths, mels,
+                  mel_lengths) in enumerate(loader, 1):
             texts, mels = texts.to(device), mels.to(device)
-
+            
             optimizer.zero_grad()
 
             with amp.autocast():
