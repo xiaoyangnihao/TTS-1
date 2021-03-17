@@ -137,18 +137,20 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
             avg_loss += (loss.item() - avg_loss) / idx
 
             if global_step % cfg.tts_training["checkpoint_interval"] == 0:
+                # Save checkpoint
                 save_checkpoint(checkpoint_dir, model, optimizer, scaler,
                                 scheduler, global_step)
 
-            index = 0
-            alignment = alignments[
-                index, :text_lengths[index], :mel_lengths[index] //
-                cfg.tts_model["decoder"]["reduction_factor"]]
-            alignment = alignment.detach().cpu().numpy()
+                # Save alignment state
+                index = 0
+                alignment = alignments[
+                    index, :text_lengths[index], :mel_lengths[index] //
+                    cfg.tts_model["decoder"]["reduction_factor"]]
+                alignment = alignment.detach().cpu().numpy()
 
-            alignment_path = os.path.join(alignments_dir,
-                                          f"model_step{global_step:09d}.png")
-            log_alignment(alignment, alignment_path)
+                alignment_path = os.path.join(
+                    alignments_dir, f"model_step{global_step:09d}.png")
+                log_alignment(alignment, alignment_path)
 
         print(
             f"Epoch: {epoch}, Loss: {avg_loss:.4f}, Current lr: {scheduler.get_last_lr()}",
