@@ -8,7 +8,7 @@ The system consists of two parts:
 
 2. A WaveRNN based vocoder; which takes the mel-spectrogram predicted in the previous step as input and generates a waveform as output (the vocoder model).
 
-All audio processing parameters, model hyperparameters, training configuration etc are specified in `config/config.py`
+All audio processing parameters, model hyperparameters, training configuration etc are specified in `config/config.py`. Both the Tacotron seq2seq model and the WaveRNN based vocoder model are trained on a single GPU, using automatic mixed precision.
 # Quick start
 
 ## Train TTS from scratch
