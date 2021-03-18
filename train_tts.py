@@ -2,19 +2,20 @@
 
 import argparse
 import os
-import random
+from functools import partial
 
 import matplotlib.pyplot as plt
 import torch
 import torch.cuda.amp as amp
 import torch.nn.functional as F
 import torch.optim as optim
+import torch.utils.data.sampler as samplers
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 
 import config.config as cfg
 from text.english import symbol_to_id
-from tts.dataset import TTSDataset
+from tts.dataset import BucketBatchSampler, TTSDataset, collate
 from tts.model import Tacotron
 
 
@@ -53,18 +54,12 @@ def load_checkpoint(checkpoint_path, model, optimizer, scaler, scheduler):
 def log_alignment(alignment, path):
     """Save the alignment to disk
     """
-    fig, ax = plt.subplots()
-    im = ax.imshow(alignment,
-                   aspect="auto",
-                   origin="lower",
-                   interpolation="none")
-    fig.colorbar(im, ax=ax)
+    _ = plt.figure(figsize=(10, 6))
+    plt.imshow(alignment, vmin=0, vmax=0.6, origin="lower")
+    plt.xlabel("Decoder steps")
+    plt.ylabel("Encoder steps")
 
-    plt.xlabel("Decoder Timesteps")
-    plt.ylabel("Encoder Timesteps")
-    plt.tight_layout()
-    plt.savefig(path, format="png")
-    plt.close()
+    plt.savefig(path)
 
 
 def train_model(data_dir, checkpoint_dir, alignments_dir,
@@ -99,13 +94,20 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
         global_step = 0
 
     # Instantiate the dataloader
-    dataset = TTSDataset(data_dir,
-                         cfg.tts_model["decoder"]["reduction_factor"])
+    dataset = TTSDataset(data_dir)
+    sampler = samplers.RandomSampler(dataset)
+    batch_sampler = BucketBatchSampler(
+        sampler=sampler,
+        batch_size=cfg.tts_training["batch_size"],
+        drop_last=True,
+        sort_key=dataset.sort_key,
+        bucket_size_multiplier=cfg.tts_training["bucket_size_multiplier"])
+    collate_fn = partial(
+        collate, reduction_factor=cfg.tts_model["decoder"]["reduction_factor"])
     loader = DataLoader(dataset,
-                        batch_size=cfg.tts_training["batch_size"],
+                        batch_sampler=batch_sampler,
+                        collate_fn=collate_fn,
                         num_workers=cfg.tts_training["num_workers"],
-                        shuffle=True,
-                        collate_fn=dataset.collate,
                         pin_memory=True)
 
     num_epochs = cfg.tts_training["num_steps"] // len(loader) + 1
@@ -114,9 +116,11 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
     for epoch in range(start_epoch, num_epochs + 1):
         avg_loss = 0
 
-        for idx, (texts, text_lengths, mels,
-                  mel_lengths) in enumerate(loader, 1):
+        for idx, (texts, text_lengths, mels, mel_lengths,
+                  attn_flag) in enumerate(loader, 1):
+
             texts, mels = texts.to(device), mels.to(device)
+            print(texts.shape, mels.shape, attn_flag)
 
             optimizer.zero_grad()
 
@@ -141,15 +145,18 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
                 save_checkpoint(checkpoint_dir, model, optimizer, scaler,
                                 scheduler, global_step)
 
-                # Save alignment state
-                index = 0
+            # Save alignment state
+            if attn_flag:
+                index = attn_flag[0]
                 alignment = alignments[
                     index, :text_lengths[index], :mel_lengths[index] //
                     cfg.tts_model["decoder"]["reduction_factor"]]
+
                 alignment = alignment.detach().cpu().numpy()
 
                 alignment_path = os.path.join(
                     alignments_dir, f"model_step{global_step:09d}.png")
+
                 log_alignment(alignment, alignment_path)
 
         print(
