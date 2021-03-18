@@ -116,17 +116,17 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
     for epoch in range(start_epoch, num_epochs + 1):
         avg_loss = 0
 
-        for idx, (texts, text_lengths, mels, mel_lengths,
-                  attn_flag) in enumerate(loader, 1):
+        for idx, (texts, text_lengths, mels,
+                  mel_lengths) in enumerate(loader, 1):
 
             texts, mels = texts.to(device), mels.to(device)
-            print(texts.shape, mels.shape, attn_flag)
+            print(texts.shape, mels.shape)
 
             optimizer.zero_grad()
 
             with amp.autocast():
                 ys, alignments = model(texts, mels)
-                loss = F.l1_loss(ys, mels)
+                loss = F.l1_loss(ys[:, :, :mels.size(-1)], mels)
 
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
@@ -145,9 +145,8 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
                 save_checkpoint(checkpoint_dir, model, optimizer, scaler,
                                 scheduler, global_step)
 
-            # Save alignment state
-            if attn_flag:
-                index = attn_flag[0]
+                # Save alignment state
+                index = 0
                 alignment = alignments[
                     index, :text_lengths[index], :mel_lengths[index] //
                     cfg.tts_model["decoder"]["reduction_factor"]]
