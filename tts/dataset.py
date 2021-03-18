@@ -92,8 +92,6 @@ class TTSDataset(Dataset):
             os.path.join(train_data_dir, "metadata_train.txt"))
         self.lengths = [instance[2] for instance in self.training_instances]
 
-        self.max_length_index = np.argmax(self.lengths)
-
         self.cmudict = load_cmudict()
 
     def __len__(self):
@@ -108,8 +106,8 @@ class TTSDataset(Dataset):
 
         text = text_to_id(text, self.cmudict)
 
-        return (torch.LongTensor(text), torch.FloatTensor(mel).transpose_(
-            0, 1).contiguous(), index == self.max_length_index)
+        return (torch.LongTensor(text),
+                torch.FloatTensor(mel).transpose_(0, 1).contiguous())
 
     def sort_key(self, index):
         return self.lengths[index]
@@ -118,14 +116,14 @@ class TTSDataset(Dataset):
 def collate(batch, reduction_factor=2):
     """Create padded batches
     """
-    texts, mels, attn_flag = zip(*batch)
+    texts, mels = zip(*batch)
 
     mels = list(mels)
     texts = list(texts)
 
     if len(mels[0]) % reduction_factor != 0:
-        padding_len = reduction_factor - len(mels[0]) % reduction_factor
-        mels[0] = F.pad(mels[0], (0, 0, 0, padding_len))
+        # padding_len = reduction_factor - len(mels[0]) % reduction_factor
+        mels[0] = F.pad(mels[0], (0, 0, 0, reduction_factor - 1))
 
     mel_lengths = [len(mel) for mel in mels]
     text_lengths = [len(text) for text in texts]
@@ -135,7 +133,4 @@ def collate(batch, reduction_factor=2):
                          batch_first=True,
                          padding_value=symbol_to_id["_PAD_"])
 
-    attn_flag = [idx for idx, flag in enumerate(attn_flag) if flag]
-
-    return texts, text_lengths, mels.transpose_(
-        1, 2).contiguous(), mel_lengths, attn_flag
+    return texts, text_lengths, mels.transpose_(1, 2).contiguous(), mel_lengths
