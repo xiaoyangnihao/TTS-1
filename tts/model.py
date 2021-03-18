@@ -57,17 +57,12 @@ class Tacotron(nn.Module):
             alpha=cfg.tts_model["attention"]["alpha"],
             beta=cfg.tts_model["attention"]["beta"],
             decoder_rnn_size=cfg.tts_model["decoder"]["decoder_rnn_size"],
-            reduction_factor=cfg.tts_model["decoder"]["reduction_factor"])
+            reduction_factor=cfg.tts_model["decoder"]["reduction_factor"],
+            zoneout=cfg.tts_model["zoneout"])
 
     def forward(self, texts, mels):
         """Forward pass
         """
-        # Group multiple frames in mels as per reduction factor
-        mels = mels.view(mels.size(0), -1,
-                         mels.size(-1) // self.reduction_factor)
-
-        assert mels.size(1) == self.n_mels * self.reduction_factor
-
         B, N, T = mels.size()
         mels = mels.unbind(-1)
 
@@ -103,7 +98,7 @@ class Tacotron(nn.Module):
         go_frame = torch.zeros(B, N, device=texts.device)
 
         ys, attention = [], []
-        for t in range(0, T):
+        for t in range(0, T, self.reduction_factor):
             # Teacher forcing (use the previous timestep ground truth as input for the current timestep)
             y = mels[t - 1] if t > 0 else go_frame
 
@@ -115,8 +110,6 @@ class Tacotron(nn.Module):
             attention.append(attention_weights)
 
         ys = torch.cat(ys, dim=-1)
-        ys = ys.view(B, self.n_mels, -1)
-
         attention = torch.stack(attention, dim=2)
 
         return ys, attention
@@ -153,24 +146,22 @@ class Tacotron(nn.Module):
                                device=text.device)
 
         ys, attention = [], []
-        for t in range(0, max_length):
+        for t in range(0, max_length, self.reduction_factor):
             # Use previous timestep prediction as input for current timestep
-            y = ys[-1] if t > 0 else go_frame
+            y = ys[-1][:, :, -1] if t > 0 else go_frame
 
             y, attention_weights, attention_context, attn_rnn_hx, decoder_rnn1_hx, decoder_rnn2_hx = self.decoder(
                 y, memory, attention_weights, attention_context, attn_rnn_hx,
                 decoder_rnn1_hx, decoder_rnn2_hx)
 
             # Stopping criterion
-            if torch.all(y[:, -1] > stop_threshold):
+            if torch.all(y[:, :, -1] > stop_threshold):
                 break
 
             ys.append(y)
             attention.append(attention_weights)
 
         ys = torch.cat(ys, dim=-1)
-        ys = ys.view(B, self.n_mels, -1)
-
         attention = torch.stack(attention, dim=2)
 
         return ys, attention
