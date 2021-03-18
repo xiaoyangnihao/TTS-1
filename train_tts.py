@@ -120,7 +120,6 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
                   mel_lengths) in enumerate(loader, 1):
 
             texts, mels = texts.to(device), mels.to(device)
-            print(texts.shape, mels.shape)
 
             optimizer.zero_grad()
 
