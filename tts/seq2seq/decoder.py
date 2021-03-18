@@ -2,9 +2,16 @@
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from tts.layers.attention import DynamicConvolutionAttention
 from tts.layers.common import PreNet
+
+
+def zoneout(prev, current, p=0.1):
+    """Apply zoneout
+    """
+    mask = torch.empty_like(prev).bernoulli_(p)
+
+    return mask * prev + (1 - mask) * current
 
 
 class Decoder(nn.Module):
@@ -13,7 +20,7 @@ class Decoder(nn.Module):
     def __init__(self, n_mels, memory_dim, prenet_layer_sizes, dropout,
                  attn_rnn_size, attn_dim, static_channels, static_kernel_size,
                  dynamic_channels, dynamic_kernel_size, prior_len, alpha, beta,
-                 decoder_rnn_size, reduction_factor):
+                 decoder_rnn_size, reduction_factor, zoneout):
         """Instantiate the decoder
         """
         super().__init__()
@@ -33,9 +40,10 @@ class Decoder(nn.Module):
         self.beta = beta
         self.decoder_rnn_size = decoder_rnn_size
         self.reduction_factor = reduction_factor
+        self.zoneout = zoneout
 
         # Prenet
-        self.prenet = PreNet(in_dim=n_mels * reduction_factor,
+        self.prenet = PreNet(in_dim=n_mels,
                              layer_sizes=prenet_layer_sizes,
                              dropout=dropout)
 
@@ -73,16 +81,16 @@ class Decoder(nn.Module):
                 attn_rnn_hx, decoder_rnn1_hx, decoder_rnn2_hx):
         """Forward pass
         """
+        B, N = y.size()
+
         # Prenet
         y = self.prenet(y)
 
         # Compute query for current timestep
         attn_rnn_h, attn_rnn_c = self.attn_rnn(
-            torch.cat((y, attention_context), dim=-1), attn_rnn_hx)
-        # Apply dropout
-        attn_rnn_h = F.dropout(attn_rnn_h,
-                               p=self.dropout,
-                               training=self.training)
+            torch.cat((attention_context, y), dim=-1), attn_rnn_hx)
+        if self.training:
+            attn_rnn_h = zoneout(attn_rnn_hx[0], attn_rnn_h, p=self.zoneout)
 
         # Compute attention weights and attention context for current timestep
         attention_weights = self.attention(attn_rnn_h, attention_weights)
@@ -91,30 +99,31 @@ class Decoder(nn.Module):
 
         # Decoder projection
         decoder_input = self.decoder_projection(
-            torch.cat((attn_rnn_h, attention_context), dim=-1))
+            torch.cat((attention_context, attn_rnn_h), dim=-1))
 
         # Decoder RNN 1
         decoder_rnn1_h, decoder_rnn1_c = self.decoder_rnn1(
             decoder_input, decoder_rnn1_hx)
-        # Apply dropout
-        decoder_rnn1_h = F.dropout(decoder_rnn1_h,
-                                   p=self.dropout,
-                                   training=self.training)
+        if self.training:
+            decoder_rnn1_h = zoneout(decoder_rnn1_hx[0],
+                                     decoder_rnn1_h,
+                                     p=self.zoneout)
         # Residual connection
         decoder_input = decoder_input + decoder_rnn1_h
 
         # Decoder RNN 2
         decoder_rnn2_h, decoder_rnn2_c = self.decoder_rnn2(
             decoder_input, decoder_rnn2_hx)
-        # Apply dropout
-        decoder_rnn2_h = F.dropout(decoder_rnn2_h,
-                                   p=self.dropout,
-                                   training=self.training)
+        if self.training:
+            decoder_rnn2_h = zoneout(decoder_rnn2_hx[0],
+                                     decoder_rnn2_h,
+                                     p=self.zoneout)
         # Residual connection
         decoder_input = decoder_input + decoder_rnn2_h
 
         # Output projection
-        y = self.output_projection(decoder_input)
+        y = self.output_projection(decoder_input).view(B, N,
+                                                       self.reduction_factor)
 
         return y, attention_weights, attention_context, (
             attn_rnn_h, attn_rnn_c), (decoder_rnn1_h,
