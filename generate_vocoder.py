@@ -94,7 +94,8 @@ if __name__ == "__main__":
     eval_data_dir = args.eval_data_dir
     out_dir = args.out_dir
 
-    held_out_filenames = _load_filenames(eval_data_dir)
+    held_out_filenames = _load_filenames(
+        os.path.join(eval_data_dir, "metadata_eval.txt"))
     held_out_mel_dir = os.path.join(eval_data_dir, "mel")
 
     generate(checkpoint_path, held_out_filenames, held_out_mel_dir, out_dir)
