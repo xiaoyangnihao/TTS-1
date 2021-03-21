@@ -92,8 +92,9 @@ class WaveRNN(nn.Module):
         mel, _ = self.conditioning_network(mel)
 
         # Upsampling
-        mel = F.interpolate(mel.transpose(1, 2), scale_factor=self.hop_length)
-        mel = mel.transpose(1, 2)
+        mel = F.interpolate(mel.transpose(1, 2).contiguous(),
+                            scale_factor=self.hop_length)
+        mel = mel.transpose(1, 2).contiguous()
 
         h = torch.zeros(mel.size(0), self.rnn_size, device=mel.device)
         x = torch.zeros(mel.size(0), device=mel.device, dtype=torch.long)
@@ -106,7 +107,7 @@ class WaveRNN(nn.Module):
             # Autoregressive GRU Cell
             h = gru_cell(torch.cat((x, mel_frame), dim=1), h)
 
-            x = F.relu(self.linear_layer(x))
+            x = F.relu(self.linear_layer(h))
             logits = self.output_layer(x)
 
             # Apply softmax over the logits and generate a distribution
