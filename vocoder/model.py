@@ -97,7 +97,7 @@ class WaveRNN(nn.Module):
 
         h = torch.zeros(mel.size(0), self.rnn_size, device=mel.device)
         x = torch.zeros(mel.size(0), device=mel.device, dtype=torch.long)
-        x = x.fill_(2**(self.bits - 1))
+        x = x.fill_(2**(self.num_bits - 1))
 
         for mel_frame in torch.unbind(mel, dim=1):
             # Audio embedding
