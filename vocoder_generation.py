@@ -1,4 +1,4 @@
-"""Vocoder generation (Generate a waveform given a mel-spectrogram) on held-out eval set"""
+"""Vocoder copy-synthesis generation (Generate a waveform given a mel-spectrogram) on held-out eval set"""
 
 import argparse
 import os
