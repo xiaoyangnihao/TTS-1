@@ -51,7 +51,7 @@ Both the Tacotron seq2seq model and the WaveRNN based vocoder model are trained 
 5. Train the vocoder model
 
     ```python
-    python train_vocoder \
+    python train_vocoder.py \
             --data_dir <Path to the processed dataset to be used to train the model> \
             --checkpoint_dir <Path to location where training checkpoints will be saved> \
             --resume_checkpoint_path <If specified load checkpoint and resume training>
@@ -59,12 +59,13 @@ Both the Tacotron seq2seq model and the WaveRNN based vocoder model are trained 
 
 ## Vocoder generation (Waveform generation from ground truth mel spectrograms) on held-out eval set
 
-    ```python
-    python vocoder_generation.py \
-            --checkpoint_path <Path to the checkpoint to use to instantiate the vocoder model> \
-            --eval_data_dir <Path to the dir containing the held-out eval data> \
-            --out_dir <Path to dir where >
-    ```
+
+```python
+python vocoder_generation.py \
+        --checkpoint_path <Path to the checkpoint to use to instantiate the vocoder model> \
+        --eval_data_dir <Path to the dir containing the held-out eval data> \
+        --out_dir <Path to dir where >
+```
 ## Acknowledgements
 
 This code is based on the code in the following repositories
