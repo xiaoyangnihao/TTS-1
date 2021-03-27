@@ -86,6 +86,8 @@ def synthesize_all(synthesis_instances, tts_checkpoint_path,
         # Synthesize audio
         with torch.no_grad():
             mel_hat, _ = tts_model.generate(text)
+            mel_hat = mel_hat.transpose(1, 2).contiguous()
+            print(mel_hat.shape)
             wav_hat = vocoder_model.generate(mel_hat)
 
         # Write the generated wavform to disk
