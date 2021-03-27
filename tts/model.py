@@ -141,9 +141,7 @@ class Tacotron(nn.Module):
         )
 
         # Initialize all zeros go frame to use as decoder input for first timestep
-        go_frame = torch.zeros(B,
-                               self.n_mels * self.reduction_factor,
-                               device=text.device)
+        go_frame = torch.zeros(B, self.n_mels, device=text.device)
 
         ys, attention = [], []
         for t in range(0, max_length, self.reduction_factor):
