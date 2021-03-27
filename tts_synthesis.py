@@ -92,8 +92,8 @@ def synthesize_all(synthesis_instances, tts_checkpoint_path,
         # Write the generated wavform to disk
         out_path = os.path.join(
             out_dir,
-            f"tts_model_step{tts_step:09d}_vocoder_model_step{vocoder_step:09d}_{fileid}.wav"
-        )
+            f"tts_model_step{tts_step:09d}_vocoder_model_step{vocoder_step:09d}_{fileid}.wav",
+            flush=True)
         sf.write(out_path, wav_hat, cfg.audio["sampling_rate"])
 
 
