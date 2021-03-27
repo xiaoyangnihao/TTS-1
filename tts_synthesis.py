@@ -77,7 +77,7 @@ def synthesize_all(synthesis_instances, tts_checkpoint_path,
 
     # Generate waveforms for all synthesis instances
     for fileid, text in synthesis_instances:
-        print(f"Synthesizing text for: {fileid}")
+        print(f"Synthesizing text for: {fileid}", flush=True)
 
         text = torch.LongTensor(text_to_id(text, cmudict)).unsqueeze(0)
         text = text.to(device)
@@ -92,8 +92,8 @@ def synthesize_all(synthesis_instances, tts_checkpoint_path,
         # Write the generated wavform to disk
         out_path = os.path.join(
             out_dir,
-            f"tts_model_step{tts_step:09d}_vocoder_model_step{vocoder_step:09d}_{fileid}.wav",
-            flush=True)
+            f"tts_model_step{tts_step:09d}_vocoder_model_step{vocoder_step:09d}_{fileid}.wav"
+        )
         sf.write(out_path, wav_hat, cfg.audio["sampling_rate"])
 
 
