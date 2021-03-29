@@ -75,7 +75,7 @@ Both the Tacotron seq2seq model and the WaveRNN based vocoder model are trained 
     ```python
     python tts_synthesis.py \
             --synthesis_file <Path to the synthesis.txt file (created in Step 1)> \
-            --tts_checkpoint <Path to the trained TTS model to use for synthesis> \
+            --seq2seq_checkpoint <Path to the trained seq2seq model to use for synthesis> \
             --vocoder_checkpoint <Path to the trained vocoder model to use for synthesis> \
             --out_dir <Path to where the synthesized waveforms will be written to disk>
     ```
