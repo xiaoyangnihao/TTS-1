@@ -57,15 +57,28 @@ Both the Tacotron seq2seq model and the WaveRNN based vocoder model are trained 
             --resume_checkpoint_path <If specified load checkpoint and resume training>
     ```
 
-## Vocoder generation (Waveform generation from ground truth mel spectrograms) on held-out eval set
+## Synthesize using a trained TTS model
+1. Prepare the text to be synthesized
+    
+    The text to be synthesized should be placed in the `synthesis.txt` file which has the following format
 
+    ```
+    <TEXT_ID_1> TEXT_1
+    <TEXT_ID_2> TEXT_2
+    .
+    .
+    .
+    ```
 
-```python
-python vocoder_generation.py \
-        --checkpoint_path <Path to the checkpoint to use to instantiate the vocoder model> \
-        --eval_data_dir <Path to the dir containing the held-out eval data> \
-        --out_dir <Path to dir where >
-```
+2. Text to speech synthesis
+    
+    ```python
+    python tts_synthesis.py \
+            --synthesis_file <Path to the synthesis.txt file (created in Step 1)> \
+            --tts_checkpoint <Path to the trained TTS model to use for synthesis> \
+            --vocoder_checkpoint <Path to the trained vocoder model to use for synthesis> \
+            --out_dir <Path to where the synthesized waveforms will be written to disk>
+    ```
 ## Acknowledgements
 
 This code is based on the code in the following repositories
