@@ -33,7 +33,7 @@ def _load_synthesis_instances(filename):
     return synthesis_instances
 
 
-def synthesize_all(synthesis_instances, tts_checkpoint_path,
+def synthesize_all(synthesis_instances, seq2seq_checkpoint_path,
                    vocoder_checkpoint_path, out_dir):
     """Synthesize all utterances present in the synthesis file
     """
@@ -49,7 +49,7 @@ def synthesize_all(synthesis_instances, tts_checkpoint_path,
     tts_model.eval()
 
     # Restore the TTS model to specified training checkpoint
-    tts_checkpoint = torch.load(tts_checkpoint_path,
+    tts_checkpoint = torch.load(seq2seq_checkpoint_path,
                                 map_location=lambda storage, loc: storage)
     tts_model.load_state_dict(tts_checkpoint["model"])
     tts_step = tts_checkpoint["step"]
@@ -122,11 +122,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     synthesis_file = args.synthesis_file
-    tts_checkpoint_path = args.tts_checkpoint
+    seq2seq_checkpoint_path = args.seq2seq_checkpoint
     vocoder_checkpoint_path = args.vocoder_checkpoint
     out_dir = args.out_dir
 
     synthesis_instances = _load_synthesis_instances(synthesis_file)
 
-    synthesize_all(synthesis_instances, tts_checkpoint_path,
+    synthesize_all(synthesis_instances, seq2seq_checkpoint_path,
                    vocoder_checkpoint_path, out_dir)
