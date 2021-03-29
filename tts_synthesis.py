@@ -105,13 +105,13 @@ if __name__ == "__main__":
         required=True)
 
     parser.add_argument(
-        "--tts_checkpoint",
-        help="Path to the TTS training checkpoint to use for synthesis",
+        "--seq2seq_checkpoint",
+        help="Path to the trained seq2seq model to use for synthesis",
         required=True)
 
     parser.add_argument(
         "--vocoder_checkpoint",
-        help="Path to the vocoder training checkpoint to use for synthesis",
+        help="Path to the trained vocoder model to use for synthesis",
         required=True)
 
     parser.add_argument(
