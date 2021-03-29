@@ -26,10 +26,6 @@ def _load_synthesis_instances(filename):
         instance.split("|") for instance in synthesis_instances
     ]
 
-    synthesis_instances = [
-        instance[0:2] for instance in synthesis_instances if len(instance) > 2
-    ]
-
     return synthesis_instances
 
 
