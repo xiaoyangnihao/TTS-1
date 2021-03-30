@@ -10,35 +10,36 @@ The system consists of two parts:
 
 All audio processing parameters, model hyperparameters, training configuration etc are specified in `config/config.py`. 
 
-Both the Tacotron seq2seq model and the WaveRNN based vocoder model are trained on a single GPU, using automatic mixed precision.
+Both the seq2seq model and the vocoder model are separately trained on a single GPU, using automatic mixed precision.
 # Quick start
 ## Train TTS from scratch
-1. Download dataset
+1. Preprocess dataset to create train/eval splits and to perform acoustic feature extraction
 
-    Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
+    1. Download dataset
+        Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
     
-    ```bash
-    wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-    tar -xvjf LJSpeech-1.1.tar.bz2
-    ```  
+        ```bash
+        wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+        tar -xvjf LJSpeech-1.1.tar.bz2
+        ```  
 
-2. Preprocess the downloaded dataset and perform feature extraction on the wav files
+    2. Preprocess the downloaded dataset and perform feature extraction on the wav files
 
-    ```python
-    python preprocess.py \
-            --dataset_dir <Path to the root of the downloaded dataset> \
-            --out_dir <Output path to write the processed dataset>
-    ```
+        ```python
+        python preprocess.py \
+                --dataset_dir <Path to the root of the downloaded dataset> \
+                --out_dir <Output path to write the processed dataset>
+        ```
 
-3. Split the processed dataset into train and eval subsets (split metadata.txt into metadata\_train.txt and metadata\_eval.txt respectively).
-		
-    ```bash
-    shuf metadata.txt > metadata_shuf.txt
-    head -n 12000 metadata_shuf.txt > metadata_train.txt
-    tail -n 1100 metadata_shuf.txt > metadata_eval.txt
-    ```
+    3. Split the processed dataset into train and eval subsets (split metadata.txt into metadata\_train.txt and metadata\_eval.txt respectively).
+            
+        ```bash
+        shuf metadata.txt > metadata_shuf.txt
+        head -n 12000 metadata_shuf.txt > metadata_train.txt
+        tail -n 1100 metadata_shuf.txt > metadata_eval.txt
+        ```
 
-4. Train the seq2seq model
+2. Train the seq2seq model
 
     ```python
     python train_tts.py \
@@ -48,7 +49,7 @@ Both the Tacotron seq2seq model and the WaveRNN based vocoder model are trained 
             --resume_checkpoint_path <If specified load checkpoint and resume training>
     ```
 
-5. Train the vocoder model
+3. Train the vocoder model
 
     ```python
     python train_vocoder.py \
@@ -63,8 +64,8 @@ Both the Tacotron seq2seq model and the WaveRNN based vocoder model are trained 
     The text to be synthesized should be placed in the `synthesis.txt` file which has the following format
 
     ```
-    <TEXT_ID_1> TEXT_1
-    <TEXT_ID_2> TEXT_2
+    <TEXT_ID_1>|TEXT_1
+    <TEXT_ID_2>|TEXT_2
     .
     .
     .
