@@ -15,14 +15,14 @@ Both the seq2seq model and the vocoder model are separately trained on a single 
 ## Train TTS from scratch
 1. Preprocess dataset to create train/eval splits and to perform acoustic feature extraction
 
-    1. Download dataset
+    1. Download and extract dataset 
         
-        Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
+        1. English single speaker dataset [LJSpeech](https://keithito.com/LJ-Speech-Dataset/):
     
-        ```bash
-        wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-        tar -xvjf LJSpeech-1.1.tar.bz2
-        ```  
+            ```bash
+            wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+            tar -xvjf LJSpeech-1.1.tar.bz2
+            ```  
 
     2. Preprocess the downloaded dataset and perform feature extraction on the wav files
 
