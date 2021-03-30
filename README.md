@@ -16,6 +16,7 @@ Both the seq2seq model and the vocoder model are separately trained on a single 
 1. Preprocess dataset to create train/eval splits and to perform acoustic feature extraction
 
     1. Download dataset
+        
         Download and extract the [LJSpeech](https://keithito.com/LJ-Speech-Dataset/) dataset:
     
         ```bash
