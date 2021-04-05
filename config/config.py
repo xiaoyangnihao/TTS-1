@@ -1,15 +1,15 @@
 """Configuration Parameters"""
 
-dataset = "libritts"
+dataset = "ljspeech"
 
 # Audio processing configuration
 audio = {
-    "sampling_rate": 24000,
+    "sampling_rate": 22050,
     "max_db": 100,
     "ref_db": 20,
     "n_fft": 2048,
-    "win_length": 1200,  # 50 ms window length
-    "hop_length": 300,  # 12.5 ms frame shift
+    "win_length": 1100,  # 50 ms window length
+    "hop_length": 275,  # 12.5 ms frame shift
     "n_mels": 80,
     "fmin": 50,
     "n_bits": 10,  # The bit depth of the signal
