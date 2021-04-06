@@ -21,7 +21,7 @@ Both the seq2seq model and the vocoder model are separately trained on a single 
         ```bash
         wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
         tar -xvjf LJSpeech-1.1.tar.bz2
-            ```  
+        ```  
 
 2. Process the downloaded dataset, and split into train and eval splits 
 
