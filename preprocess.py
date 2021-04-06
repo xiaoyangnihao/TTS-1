@@ -12,6 +12,17 @@ from tqdm import tqdm
 import config.config as cfg
 
 
+def _split_dataset(items):
+    """Split the dataset items into train/eval splits
+    """
+    eval_split_size = min(500, int(len(items) * 0.01))
+
+    np.random.seed(0)
+    np.random.shuffle(items)
+
+    return items[eval_split_size:], items[:eval_split_size]
+
+
 def _compute_melspectrogram(wav):
     """Compute the mel-spectrogram
     """
@@ -82,61 +93,74 @@ def _process_utterance(mel_dir, qwav_dir, wav_path, text):
     return (filename, text, mel.shape[-1])
 
 
-def write_metadata(metadata, out_dir):
+def write_metadata(metadata, out_file):
     """Write the metadata to train.txt file
     """
-    with open(os.path.join(out_dir, "metadata.txt"), "w") as file_writer:
+    with open(out_file, "w") as file_writer:
         for m in metadata:
             file_writer.write("|".join([str(x) for x in m]) + "\n")
 
-    frames = sum([m[2] for m in metadata])
-    frame_shift_ms = cfg.audio["hop_length"] / cfg.audio["sampling_rate"] * 1000
-    hours = frames * frame_shift_ms / (3600 * 1000)
 
-    print(
-        f"Wrote {len(metadata)} utterances, {frames} frames, {hours:2f} hours")
-
-
-def build_from_path_ljspeech(in_dir, out_dir, num_workers=1, tqdm=lambda x: x):
-    """Preprocess the LJSpeech dataset from a given input path into a given output directory
+def preprocess_ljspeech(root_dir, out_dir, num_workers=1, tqdm=lambda x: x):
+    """Process LJSpeech dataset and write processed dataset to disk
     """
-    mel_dir = os.path.join(out_dir, "mel")
-    qwav_dir = os.path.join(out_dir, "qwav")
+    #  Load dataset items from disk
+    items = []
+    with open(os.path.join(root_dir, "metadata.csv"), "r") as file_reader:
+        for line in file_reader:
+            parts = line.strip().split("|")
+            text = parts[1]
+            wav_path = os.path.join(root_dir, "wavs", f"{parts[0]}.wav")
+            items.append([text, wav_path])
+
+    # Split into train and eval sets
+    train_items, eval_items = _split_dataset(items)
+
+    # Process the train split
+    print("Processing train split")
+
+    mel_dir = os.path.join(out_dir, "train", "mel")
+    qwav_dir = os.path.join(out_dir, "train", "qwav")
 
     os.makedirs(mel_dir, exist_ok=True)
     os.makedirs(qwav_dir, exist_ok=True)
 
     executor = ProcessPoolExecutor(max_workers=num_workers)
     futures = []
+    for text, wav_path in train_items:
+        futures.append(
+            executor.submit(
+                partial(_process_utterance, mel_dir, qwav_dir, wav_path,
+                        text)))
 
-    with open(os.path.join(in_dir, "metadata.csv"), "r") as file_reader:
-        for line in file_reader:
-            parts = line.strip().split("|")
-            wav_path = os.path.join(in_dir, "wavs", f"{parts[0]}.wav")
-            text = parts[2]
-            futures.append(
-                executor.submit(
-                    partial(_process_utterance, mel_dir, qwav_dir, wav_path,
-                            text)))
+    train_metadata = [future.result() for future in tqdm(futures)]
+    write_metadata(train_metadata, os.path.join(out_dir, "train/train.csv"))
 
-    return [future.result() for future in tqdm(futures)]
+    # Process the eval split
+    print("Processing eval split")
+
+    eval_dir = os.path.join(out_dir, "eval")
+    os.makedirs(eval_dir, exist_ok=True)
+
+    eval_metadata = []
+    for text, wav_path in eval_items:
+        filename = os.path.splitext(os.path.basename(wav_path))[0]
+        eval_metadata.append((filename, text))
+    write_metadata(eval_metadata, os.path.join(out_dir, "eval/synthesis.csv"))
 
 
-def preprocess(in_dir, out_dir, num_workers):
+def preprocess(root_dir, out_dir, num_workers):
     """Preprocess the dataset
     """
     os.makedirs(out_dir, exist_ok=True)
 
     if cfg.dataset == "ljspeech":
-        metadata = build_from_path_ljspeech(in_dir,
-                                            out_dir,
-                                            num_workers,
-                                            tqdm=tqdm)
+        preprocess_ljspeech(root_dir, out_dir, num_workers, tqdm=tqdm)
     else:
         raise NotImplementedError
 
-    write_metadata(metadata, out_dir)
 
+#     write_metadata(metadata, out_dir)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Preprocess dataset")
