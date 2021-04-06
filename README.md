@@ -53,11 +53,11 @@ Both the seq2seq model and the vocoder model are separately trained on a single 
 ## Synthesize using a trained TTS model
 1. Prepare the text to be synthesized
     
-    The text to be synthesized should be placed in the `synthesis.csv` file which has the following format
+    The text to be synthesized should be placed in the `synthesis.csv` file in the following format
 
     ```
-    <TEXT_ID_1>|TEXT_1
-    <TEXT_ID_2>|TEXT_2
+    ID_1|TEXT_1
+    ID_2|TEXT_2
     .
     .
     .
