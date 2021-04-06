@@ -13,48 +13,39 @@ All audio processing parameters, model hyperparameters, training configuration e
 Both the seq2seq model and the vocoder model are separately trained on a single GPU, using automatic mixed precision.
 # Quick start
 ## Train TTS from scratch
-1. Preprocess dataset to create train/eval splits and to perform acoustic feature extraction
 
-    1. Download and extract dataset 
-        
-        1. English single speaker dataset [LJSpeech](https://keithito.com/LJ-Speech-Dataset/):
+1. Download and extract dataset 
     
-            ```bash
-            wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
-            tar -xvjf LJSpeech-1.1.tar.bz2
+    1. English single speaker dataset [LJSpeech](https://keithito.com/LJ-Speech-Dataset/):
+
+        ```bash
+        wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+        tar -xvjf LJSpeech-1.1.tar.bz2
             ```  
 
-    2. Preprocess the downloaded dataset and perform feature extraction on the wav files
+2. Process the downloaded dataset, and split into train and eval splits 
 
-        ```python
-        python preprocess.py \
-                --dataset_dir <Path to the root of the downloaded dataset> \
-                --out_dir <Output path to write the processed dataset>
-        ```
+    ```python
+    python preprocess.py \
+            --dataset_dir <Path to the root of the downloaded dataset> \
+            --out_dir <Output path to write the processed dataset>
+    ```
 
-    3. Split the processed dataset into train and eval subsets (split metadata.txt into metadata\_train.txt and metadata\_eval.txt respectively).
-            
-        ```bash
-        shuf metadata.txt > metadata_shuf.txt
-        head -n 12000 metadata_shuf.txt > metadata_train.txt
-        tail -n 1100 metadata_shuf.txt > metadata_eval.txt
-        ```
-
-2. Train the seq2seq model
+3. Train the seq2seq model
 
     ```python
     python train_tts.py \
-            --data_dir <Path to the processed dataset to be used to train the model> \
+            --train_data_dir <Path to the processed train split> \
             --checkpoint_dir <Path to location where training checkpoints will be saved> \
             --alignments_dir <Path to the location where training alignments will be saved> \
             --resume_checkpoint_path <If specified load checkpoint and resume training>
     ```
 
-3. Train the vocoder model
+4. Train the vocoder model
 
     ```python
     python train_vocoder.py \
-            --data_dir <Path to the processed dataset to be used to train the model> \
+            --train_data_dir <Path to the processed train split> \
             --checkpoint_dir <Path to location where training checkpoints will be saved> \
             --resume_checkpoint_path <If specified load checkpoint and resume training>
     ```
@@ -62,7 +53,7 @@ Both the seq2seq model and the vocoder model are separately trained on a single 
 ## Synthesize using a trained TTS model
 1. Prepare the text to be synthesized
     
-    The text to be synthesized should be placed in the `synthesis.txt` file which has the following format
+    The text to be synthesized should be placed in the `synthesis.csv` file which has the following format
 
     ```
     <TEXT_ID_1>|TEXT_1
@@ -76,7 +67,7 @@ Both the seq2seq model and the vocoder model are separately trained on a single 
     
     ```python
     python tts_synthesis.py \
-            --synthesis_file <Path to the synthesis.txt file (created in Step 1)> \
+            --synthesis_file <Path to the synthesis.csv file (created in Step 1)> \
             --seq2seq_checkpoint <Path to the trained seq2seq model to use for synthesis> \
             --vocoder_checkpoint <Path to the trained vocoder model to use for synthesis> \
             --out_dir <Path to where the synthesized waveforms will be written to disk>
