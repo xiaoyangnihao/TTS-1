@@ -1,4 +1,4 @@
-"""Text normalization for english"""
+"""Text normalization for English"""
 
 import re
 
