@@ -1,4 +1,4 @@
-"""Frontend processor for english text"""
+"""Frontend processor for English text"""
 
 from text.english_normalization import (add_punctuation, collapse_whitespace,
                                         expand_abbreviations,
