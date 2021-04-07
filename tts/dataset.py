@@ -89,7 +89,7 @@ class TTSDataset(Dataset):
         self.train_data_dir = train_data_dir
 
         self.training_instances = _load_training_instances(
-            os.path.join(train_data_dir, "metadata_train.txt"))
+            os.path.join(train_data_dir, "train.csv"))
         self.lengths = [instance[2] for instance in self.training_instances]
 
     def __len__(self):
