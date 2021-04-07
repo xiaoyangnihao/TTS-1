@@ -33,7 +33,7 @@ class VocoderDataset(Dataset):
         """Instantiate the dataset
         """
         self.training_instances = _load_training_instances(
-            os.path.join(train_data_dir, "metadata_train.txt"))
+            os.path.join(train_data_dir, "train.csv"))
 
         self.train_data_dir = train_data_dir
         self.sample_frames = cfg.vocoder_training["sample_frames"]
