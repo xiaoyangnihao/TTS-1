@@ -14,7 +14,7 @@ from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 
 import config.config as cfg
-from text.english import symbol_to_id
+from text.en.processor import symbol_to_id
 from tts.dataset import BucketBatchSampler, TTSDataset, collate
 from tts.model import Tacotron
 
