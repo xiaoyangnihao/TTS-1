@@ -7,7 +7,7 @@ import soundfile as sf
 import torch
 
 import config.config as cfg
-from text.english import symbol_to_id, text_to_sequence
+from text.en.processor import symbol_to_id, text_to_sequence
 from tts.model import Tacotron
 from vocoder.model import WaveRNN
 
