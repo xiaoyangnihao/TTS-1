@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.utils.data.sampler as samplers
-from text.english import symbol_to_id, text_to_sequence
+from text.en.processor import symbol_to_id, text_to_sequence
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
