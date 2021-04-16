@@ -35,6 +35,7 @@ symbol_to_id = {symb: index for index, symb in enumerate(symbols)}
 id_to_symbol = {index: symb for index, symb in enumerate(symbols)}
 
 alt_entry_pattern = re.compile(r"(?<=\w)\((\d)\)")
+tokenizer_pattern = re.compile(r"[\w\{\}']+|[.,!?]")
 
 
 def format_alt_entry(text):
@@ -57,24 +58,36 @@ def load_cmudict():
     return cmudict
 
 
-def parse_text(text):
-    """Parse the text and perform text normalization
+def normalize_text(text):
+    """Text normalization
     """
-    cmudict = load_cmudict()
-
     text = add_punctuation(text)
     text = normalize_numbers(text)
     text = expand_abbreviations(text)
     text = collapse_whitespace(text)
 
+    return text
+
+
+def tokenize_text(text):
+    """Tokenize the text
+    """
+    return tokenizer_pattern.findall(text)
+
+
+def parse_text(text, cmudict):
+    """Parse the text and perform text normalization
+    """
+    text = tokenize_text(text)
+
     text = [
         " ".join(["@" + s for s in cmudict[word.upper()].split(" ")])
-        if word.upper() in cmudict and random() < 0.5 else " ".join(
-            char for char in word) for word in text.split(" ")
+        if word.upper() in cmudict and random() <= 0.5 else " ".join(
+            char for char in word) for word in text
     ]
 
-    text = [word.split(" ") for word in text]
-    text = [char for word in text for char in word]
+    # text = [word.split(" ") for word in text]
+    # text = [char for word in text for char in word]
 
     return text
 
