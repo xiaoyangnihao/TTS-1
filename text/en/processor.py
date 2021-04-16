@@ -86,8 +86,8 @@ def parse_text(text, cmudict):
             char for char in word) for word in text
     ]
 
-    # text = [word.split(" ") for word in text]
-    # text = [char for word in text for char in word]
+    text = [word.split(" ") for word in text]
+    text = [char for word in text for char in word]
 
     return text
 
