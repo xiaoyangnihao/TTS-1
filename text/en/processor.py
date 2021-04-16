@@ -92,10 +92,10 @@ def parse_text(text, cmudict):
     return text
 
 
-def text_to_sequence(text):
+def text_to_sequence(text, cmudict):
     """Converts text to a sequence of IDs corresponding to the symbols in the text
     """
-    text = parse_text(text)
+    text = parse_text(text, cmudict)
 
     text_seq = [
         symbol_to_id[char] if char in symbol_to_id else symbol_to_id["_UNK_"]
