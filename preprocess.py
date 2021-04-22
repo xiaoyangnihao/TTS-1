@@ -146,7 +146,7 @@ def preprocess_ljspeech(root_dir, out_dir, num_workers=1, tqdm=lambda x: x):
     for text, wav_path in eval_items:
         filename = os.path.splitext(os.path.basename(wav_path))[0]
         eval_metadata.append((filename, text))
-    write_metadata(eval_metadata, os.path.join(out_dir, "eval/synthesis.csv"))
+    write_metadata(eval_metadata, os.path.join(out_dir, "eval/heldout.csv"))
 
 
 def preprocess(root_dir, out_dir, num_workers):
@@ -154,7 +154,7 @@ def preprocess(root_dir, out_dir, num_workers):
     """
     os.makedirs(out_dir, exist_ok=True)
 
-    if cfg.dataset == "ljspeech":
+    if cfg.dataset == "ljspeech" or cfg.dataset == "iiith_cvit_hindi":
         preprocess_ljspeech(root_dir, out_dir, num_workers, tqdm=tqdm)
     else:
         raise NotImplementedError
