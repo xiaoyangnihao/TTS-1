@@ -2,7 +2,7 @@
 
 dataset = "iiith_cvit_hindi"
 
-text_processor = "hi"  # Currently english: "en" and hindi: "hi" are supported
+text_processor = "hi"  # Currently supported -> english: "en" and hindi: "hi"
 
 # Audio processing configuration
 audio = {
