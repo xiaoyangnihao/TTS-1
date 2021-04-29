@@ -1,6 +1,6 @@
 """Configuration Parameters"""
 
-dataset = "iiith_cvit_hindi"
+dataset = "IIITH_CVIT_Hindi"
 
 text_processor = "hi"  # Currently supported -> english: "en" and hindi: "hi"
 
