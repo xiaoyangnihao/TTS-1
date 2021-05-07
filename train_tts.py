@@ -130,7 +130,6 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
                   mel_lengths) in enumerate(loader, 1):
 
             texts, mels = texts.to(device), mels.to(device)
-
             optimizer.zero_grad()
 
             with amp.autocast():
