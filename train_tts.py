@@ -14,9 +14,15 @@ from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 
 import config.config as cfg
-from text.en.processor import symbol_to_id
 from tts.dataset import BucketBatchSampler, TTSDataset, collate
 from tts.model import Tacotron
+
+if cfg.text_processor == "en":
+    from text.en.processor import symbol_to_id
+elif cfg.text_processor == "hi":
+    from text.indic.processor import symbol_to_id
+else:
+    raise NotImplementedError
 
 
 def save_checkpoint(checkpoint_dir, model, optimizer, scaler, scheduler, step):
