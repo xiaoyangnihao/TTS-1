@@ -81,7 +81,7 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
     # Instantiate the model
     if cfg.text_processor == "en":
         num_chars = len(symbol_to_id_en)
-    elif cfg.text_processor == "indic":
+    elif cfg.text_processor == "hi":
         num_chars = len(symbol_to_id_indic)
 
     model = Tacotron(num_chars=num_chars)
