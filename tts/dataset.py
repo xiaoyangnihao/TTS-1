@@ -12,9 +12,10 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
 if cfg.text_processor == "en":
-    from text.en.processor import load_cmudict, symbol_to_id, text_to_sequence
+    from text.en.processor import (load_cmudict, symbol_to_id_en,
+                                   text_to_sequence)
 elif cfg.text_processor == "hi":
-    from text.indic.processor import symbol_to_id, text_to_sequence
+    from text.indic.processor import symbol_to_id_indic, text_to_sequence
 else:
     raise NotImplementedError
 
@@ -140,8 +141,14 @@ def collate(batch, reduction_factor=2):
     text_lengths = [len(text) for text in texts]
 
     mels = pad_sequence(mels, batch_first=True)
-    texts = pad_sequence(texts,
-                         batch_first=True,
-                         padding_value=symbol_to_id["_PAD_"])
+
+    if cfg.text_processor == "en":
+        texts = pad_sequence(texts,
+                             batch_first=True,
+                             padding_value=symbol_to_id_en["_PAD_"])
+    elif cfg.text_processor == "hi":
+        texts = pad_sequence(texts,
+                             batch_first=True,
+                             padding_value=symbol_to_id_indic["_PAD_"])
 
     return texts, text_lengths, mels.transpose_(1, 2).contiguous(), mel_lengths
