@@ -7,9 +7,13 @@ import soundfile as sf
 import torch
 
 import config.config as cfg
-from text.en.processor import load_cmudict, symbol_to_id, text_to_sequence
 from tts.model import Tacotron
 from vocoder.model import WaveRNN
+
+if cfg.text_processor == "en":
+    from text.en.processor import load_cmudict, symbol_to_id, text_to_sequence
+elif cfg.text_processor == "hi":
+    from text.indic.processor import symbol_to_id, text_to_sequence
 
 
 def _load_synthesis_instances(filename):
@@ -74,7 +78,16 @@ def synthesize_all(synthesis_instances, seq2seq_checkpoint_path,
     for fileid, text in synthesis_instances:
         print(f"Synthesizing text for: {fileid}", flush=True)
 
-        text = torch.LongTensor(text_to_sequence(text, cmudict)).unsqueeze(0)
+        if cfg.text_processor == "en":
+            text = torch.LongTensor(text_to_sequence(text,
+                                                     cmudict)).unsqueeze(0)
+        elif cfg.text_processor == "hi":
+            text = torch.LongTensor(
+                text_to_sequence(text,
+                                 lang_code=cfg.text_processor)).unsqueeze(0)
+        else:
+            raise NotImplementedError
+
         text = text.to(device)
 
         # Synthesize audio
