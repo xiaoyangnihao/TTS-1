@@ -3,13 +3,20 @@
 import math
 import os
 
+import config.config as cfg
 import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.utils.data.sampler as samplers
-from text.en.processor import load_cmudict, symbol_to_id, text_to_sequence
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
+
+if cfg.text_processor == "en":
+    from text.en.processor import load_cmudict, symbol_to_id, text_to_sequence
+elif cfg.text_processor == "hi":
+    from text.indic.processor import symbol_to_id, text_to_sequence
+else:
+    raise NotImplementedError
 
 
 def _load_training_instances(filename):
@@ -92,7 +99,8 @@ class TTSDataset(Dataset):
             os.path.join(train_data_dir, "train.csv"))
         self.lengths = [instance[2] for instance in self.training_instances]
 
-        self.cmudict = load_cmudict()
+        if cfg.text_processor == "en":
+            self.cmudict = load_cmudict()
 
     def __len__(self):
         return len(self.training_instances)
@@ -104,7 +112,10 @@ class TTSDataset(Dataset):
         mel_path = os.path.join(self.train_data_dir, "mel", filename + ".npy")
         mel = np.load(mel_path)
 
-        text = text_to_sequence(text, self.cmudict)
+        if cfg.text_processor == "en":
+            text = text_to_sequence(text, self.cmudict)
+        elif cfg.text_processor == "hi":
+            text = text_to_sequence(text, lang_code=cfg.text_processor)
 
         return (torch.LongTensor(text),
                 torch.FloatTensor(mel).transpose_(0, 1).contiguous())
