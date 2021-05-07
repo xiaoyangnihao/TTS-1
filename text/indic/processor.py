@@ -13,8 +13,7 @@ _itrans_symbols = offset_itrans_mapping.values()
 symbols = [_pad, _eos, _unk] + list(_punctuation) + list(_itrans_symbols)
 
 # Map symbols to integer indices
-symbol_to_id = {symb: index for index, symb in enumerate(symbols)}
-id_to_symbol = {index: symb for index, symb in enumerate(symbols)}
+symbol_to_id_indic = {symb: index for index, symb in enumerate(symbols)}
 
 
 def text_to_sequence(text, lang_code):
@@ -22,7 +21,8 @@ def text_to_sequence(text, lang_code):
     """
     text = unicode_to_itrans_tranliteration(text, lang_code)
     text_seq = [
-        symbol_to_id[char] if char in symbol_to_id else symbol_to_id["_UNK_"]
+        symbol_to_id_indic[char]
+        if char in symbol_to_id_indic else symbol_to_id_indic["_UNK_"]
         for char in text
     ]
 
