@@ -1,6 +1,6 @@
 # Recurrent Neural Network based Text-to-Speech systems
 
-This repository contains code to train a End-to-End Speech Synthesis system, based on the Tactoron2 model with modifications as described in [Location Relative Attention Mechanisms for Robust Long-Form Speech Synthesis](https://arxiv.org/pdf/1910.10288.pdf).
+This repository contains code to train a End-to-End Speech Synthesis system, based on the Tactoron2 model with modifications as described in [Location Relative Attention Mechanisms for Robust Long-Form Speech Synthesis](https://arxiv.org/pdf/1910.10288.pdf). Both single speaker as well as multi-speaker models are supported.
  
 The system consists of two parts:
 
@@ -10,7 +10,8 @@ The system consists of two parts:
 
 All audio processing parameters, model hyperparameters, training configuration etc are specified in `config/config.py`. 
 
-Both the seq2seq model and the vocoder model are separately trained on a single GPU, using automatic mixed precision.
+Both the seq2seq model and the vocoder model need to be trained seperately.
+
 # Quick start
 ## Train TTS from scratch
 
