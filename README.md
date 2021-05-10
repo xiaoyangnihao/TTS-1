@@ -10,7 +10,7 @@ The system consists of two parts:
 
 All audio processing parameters, model hyperparameters, training configuration etc are specified in `config/config.py`. 
 
-Both the seq2seq model and the vocoder model need to be trained seperately.
+Both the seq2seq model and the vocoder model need to be trained seperately. Training using automatic mixed precision is supported.
 
 # Quick start
 ## Train TTS from scratch
