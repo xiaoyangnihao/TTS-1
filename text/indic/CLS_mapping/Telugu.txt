@@ -1,7 +1,8 @@
 C01	:	SYM
 C02	q	SYM
 C03	hq	VOW
-C05	a	SCHWA	
+C04 a^   SCHWA
+C05	a	VOW	
 C06	aa	VOW
 C07	i	VOW
 C08	ii	VOW
