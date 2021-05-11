@@ -1,6 +1,8 @@
 # Recurrent Neural Network based Text-to-Speech systems
 
-This repository contains code to train a End-to-End Speech Synthesis system. The text frontend supports English (en) text as well as Indic (indic) text.
+This repository contains code to train a End-to-End Speech Synthesis system. Both single speaker and multi-speaker models are supported.
+
+Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Manipuri, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to the [Common Label Set (CLS)](https://www.iitm.ac.in/donlab/tts/downloads/cls/cls_v2.1.6.pdf), which provides a common character representation for all Indic languages, before being used in the remainder of the voice building process. A parser to convert Indic text from unicode to CLS has been provided as part of the repository.
  
 The system consists of two parts:
 
@@ -24,7 +26,9 @@ Both the seq2seq model and the vocoder model need to be trained seperately. Trai
         tar -xvjf LJSpeech-1.1.tar.bz2
         ```  
 
-2. Process the downloaded dataset, and split into train and eval splits 
+2. Edit the configuration parameters in `config/config.py` appropriate for the dataset to be used for training
+
+3. Process the downloaded dataset, and split into train and eval splits 
 
     ```python
     python preprocess.py \
@@ -32,7 +36,7 @@ Both the seq2seq model and the vocoder model need to be trained seperately. Trai
             --out_dir <Output path to write the processed dataset>
     ```
 
-3. Train the seq2seq model
+4. Train the Tacotron (seq2seq) model
 
     ```python
     python train_tts.py \
@@ -42,7 +46,7 @@ Both the seq2seq model and the vocoder model need to be trained seperately. Trai
             --resume_checkpoint_path <If specified load checkpoint and resume training>
     ```
 
-4. Train the vocoder model
+5. Train the vocoder model
 
     ```python
     python train_vocoder.py \
