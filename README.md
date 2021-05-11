@@ -1,14 +1,14 @@
 # Recurrent Neural Network based Text-to-Speech systems
 
-This repository contains code to train a End-to-End Speech Synthesis system, based on the Tactoron2 model with modifications as described in [Location Relative Attention Mechanisms for Robust Long-Form Speech Synthesis](https://arxiv.org/pdf/1910.10288.pdf). Both single speaker as well as multi-speaker models are supported.
+This repository contains code to train a End-to-End Speech Synthesis system. The text frontend supports English (en) text as well as Indic (indic) text.
  
 The system consists of two parts:
 
-1. A Tacotron model with Dynamic Convolutional Attention which modifies the hybrid location sensitive attention mechanism to be purely location based, resulting in better generalization on long utterances. This model takes text (in the form of character sequence) as input and predicts a sequence of mel-spectrogram frames as output (the seq2seq model).
+1. A Tacotron model with Dynamic Convolutional Attention which modifies the hybrid location sensitive attention mechanism to be purely location based as described in [Location Relative Attention Mechanisms for Robust Long-Form Speech Synthesis](https://arxiv.org/pdf/1910.10288.pdf), resulting in better generalization on long utterances. This model takes text (in the form of character sequence) as input and predicts a sequence of mel-spectrogram frames as output (the seq2seq model).
 
 2. A WaveRNN based vocoder; which takes the mel-spectrogram predicted in the previous step as input and generates a waveform as output (the vocoder model).
 
-All audio processing parameters, model hyperparameters, training configuration etc are specified in `config/config.py`. 
+All audio processing parameters, model hyperparameters, training configuration etc are specified in the `config/config.py` folder. 
 
 Both the seq2seq model and the vocoder model need to be trained seperately. Training using automatic mixed precision is supported.
 
