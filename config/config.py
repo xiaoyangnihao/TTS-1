@@ -1,12 +1,12 @@
 """Configuration Parameters"""
 
-dataset = "IIITH_CVIT_Hindi"
+dataset = "IIITH_CVIT_Hindi"  # The name of the dataset
 
-text_processor = "hi"  # Currently supported -> english: "en" and hindi: "hi"
+text_processor = "indic"  # Currently supported -> english text: "en" and indic language text: "indic"
 
 # Audio processing configuration
 audio = {
-    "sampling_rate": 48000,
+    "sampling_rate": 48000,  # Sampling rate of the wav files in the dataset
     "max_db": 100,
     "ref_db": 20,
     "n_fft": 4096,
@@ -14,7 +14,7 @@ audio = {
     "hop_length": 600,  # 12.5 ms frame shift: sampling_rate * 12.5 / 1000
     "n_mels": 80,
     "fmin": 50,
-    "n_bits": 10,  # The bit depth of the signal
+    "n_bits": 10,  # The bit depth of the signal (used in the vocoder)
 }
 
 # TTS configuration
