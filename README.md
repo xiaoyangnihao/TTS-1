@@ -2,7 +2,7 @@
 
 This repository contains code to train a End-to-End Speech Synthesis system. Both single speaker and multi-speaker models are supported.
 
-Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Manipuri, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to the [Common Label Set (CLS)](https://www.iitm.ac.in/donlab/tts/downloads/cls/cls_v2.1.6.pdf), which provides a common character representation for all Indic languages, before being used in the remainder of the voice building process. A parser to convert Indic text from unicode to CLS has been provided as part of the repository.
+Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to itrans, which provides a common character representation for all Indic languages, before being used in the remainder of the voice building process. A parser to convert Indic text from unicode to itrans has been provided as part of the repository.
  
 The system consists of two parts:
 
