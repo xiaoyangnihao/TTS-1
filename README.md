@@ -2,7 +2,7 @@
 
 This repository contains code to train a End-to-End Speech Synthesis system. Both single speaker and multi-speaker models are supported.
 
-Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Manipuri, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to itrans, which provides a common character representation for all Indic languages, before being used in the remainder of the voice building process. A parser to convert Indic text from unicode to itrans has been provided as part of the repository.
+Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to itrans, which provides a common character representation for all Indic languages, before being used in the remainder of the voice building process. A parser to convert Indic text from unicode to itrans has been provided as part of the repository.
  
 The system consists of two parts:
 
@@ -24,7 +24,19 @@ Both the seq2seq model and the vocoder model need to be trained seperately. Trai
         ```bash
         wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
         tar -xvjf LJSpeech-1.1.tar.bz2
-        ```  
+        ```
+    
+    2. Hindi single speaker dataset [IIITH-CVIT-IndicSpeech](http://cvit.iiit.ac.in/research/projects/cvit-projects/text-to-speech-dataset-for-indian-languages)
+        
+        ```python
+        python unicode_to_itrans_converter.py \
+            --unicode_prompts_file <Path to the file containing unicode text prompts> \
+            --itrans_prompts_file <Path to the output file where the text prompts in ITRANS format will be written> \
+            --lang_code <Code representing the Indic language>
+        ```
+        
+        This will convert text prompts in unicode to itrans.
+
 
 2. Edit the configuration parameters in `config/config.py` appropriate for the dataset to be used for training
 
