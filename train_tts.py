@@ -18,9 +18,9 @@ from tts.dataset import BucketBatchSampler, TTSDataset, collate
 from tts.model import Tacotron
 
 if cfg.text_processor == "en":
-    from text.en.processor import symbol_to_id_en
-elif cfg.text_processor == "hi":
-    from text.indic.processor import symbol_to_id_indic
+    from text.en.processor import symbol_to_id
+elif cfg.text_processor == "indic":
+    from text.indic.processor import symbol_to_id
 else:
     raise NotImplementedError
 
@@ -80,9 +80,9 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
 
     # Instantiate the model
     if cfg.text_processor == "en":
-        num_chars = len(symbol_to_id_en)
-    elif cfg.text_processor == "hi":
-        num_chars = len(symbol_to_id_indic)
+        num_chars = len(symbol_to_id)
+    elif cfg.text_processor == "indic":
+        num_chars = len(symbol_to_id)
 
     model = Tacotron(num_chars=num_chars)
     model = model.to(device)
