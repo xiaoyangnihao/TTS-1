@@ -12,10 +12,9 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
 if cfg.text_processor == "en":
-    from text.en.processor import (load_cmudict, symbol_to_id_en,
-                                   text_to_sequence)
-elif cfg.text_processor == "hi":
-    from text.indic.processor import symbol_to_id_indic, text_to_sequence
+    from text.en.processor import load_cmudict, symbol_to_id, text_to_sequence
+elif cfg.text_processor == "indic":
+    from text.indic.processor import symbol_to_id, text_to_sequence
 else:
     raise NotImplementedError
 
@@ -115,8 +114,8 @@ class TTSDataset(Dataset):
 
         if cfg.text_processor == "en":
             text = text_to_sequence(text, self.cmudict)
-        elif cfg.text_processor == "hi":
-            text = text_to_sequence(text, lang_code=cfg.text_processor)
+        elif cfg.text_processor == "indic":
+            text = text_to_sequence(text)
 
         return (torch.LongTensor(text),
                 torch.FloatTensor(mel).transpose_(0, 1).contiguous())
@@ -142,13 +141,8 @@ def collate(batch, reduction_factor=2):
 
     mels = pad_sequence(mels, batch_first=True)
 
-    if cfg.text_processor == "en":
-        texts = pad_sequence(texts,
-                             batch_first=True,
-                             padding_value=symbol_to_id_en["_PAD_"])
-    elif cfg.text_processor == "hi":
-        texts = pad_sequence(texts,
-                             batch_first=True,
-                             padding_value=symbol_to_id_indic["_PAD_"])
+    texts = pad_sequence(texts,
+                         batch_first=True,
+                         padding_value=symbol_to_id["_PAD_"])
 
     return texts, text_lengths, mels.transpose_(1, 2).contiguous(), mel_lengths
