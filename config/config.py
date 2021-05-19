@@ -6,12 +6,12 @@ text_processor = "indic"  # Currently supported -> english text: "en" and indic 
 
 # Audio processing configuration
 audio = {
-    "sampling_rate": 48000,  # Sampling rate of the wav files in the dataset
+    "sampling_rate": 22050,  # Sampling rate of the wav files in the dataset
     "max_db": 100,
     "ref_db": 20,
-    "n_fft": 4096,
-    "win_length": 2400,  # 50 ms window length: sampling_rate * 50 / 1000
-    "hop_length": 600,  # 12.5 ms frame shift: sampling_rate * 12.5 / 1000
+    "n_fft": 2048,
+    "win_length": 1100,  # 50 ms window length: sampling_rate * 50 / 1000
+    "hop_length": 275,  # 12.5 ms frame shift: sampling_rate * 12.5 / 1000
     "n_mels": 80,
     "fmin": 50,
     "n_bits": 10,  # The bit depth of the signal (used in the vocoder)
@@ -55,7 +55,7 @@ tts_model = {
 }
 
 tts_training = {
-    "batch_size": 64,
+    "batch_size": 32,
     "bucket_size_multiplier": 5,
     "num_steps": 250000,
     "checkpoint_interval": 10000,
