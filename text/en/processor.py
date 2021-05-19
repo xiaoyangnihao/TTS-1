@@ -31,7 +31,7 @@ symbols = [_pad, _eos, _unk
            ] + list(_punctuation) + list(_english_characters) + _arpabet
 
 # Map symbols to integer indices
-symbol_to_id_en = {symb: index for index, symb in enumerate(symbols)}
+symbol_to_id = {symb: index for index, symb in enumerate(symbols)}
 
 alt_entry_pattern = re.compile(r"(?<=\w)\((\d)\)")
 tokenizer_pattern = re.compile(r"[\w\{\}']+|[.,!?]")
@@ -97,8 +97,7 @@ def text_to_sequence(text, cmudict):
     text = parse_text(text, cmudict)
 
     text_seq = [
-        symbol_to_id_en[char]
-        if char in symbol_to_id_en else symbol_to_id_en["_UNK_"]
+        symbol_to_id[char] if char in symbol_to_id else symbol_to_id["_UNK_"]
         for char in text
     ]
 
