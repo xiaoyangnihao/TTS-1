@@ -101,8 +101,8 @@ def write_metadata(metadata, out_file):
             file_writer.write("|".join([str(x) for x in m]) + "\n")
 
 
-def preprocess_ljspeech(root_dir, out_dir, num_workers=1, tqdm=lambda x: x):
-    """Process LJSpeech dataset and write processed dataset to disk
+def preprocess_dataset(root_dir, out_dir, num_workers=1, tqdm=lambda x: x):
+    """Process dataset and write processed dataset to disk
     """
     #  Load dataset items from disk
     items = []
@@ -154,8 +154,8 @@ def preprocess(root_dir, out_dir, num_workers):
     """
     os.makedirs(out_dir, exist_ok=True)
 
-    if cfg.dataset == "ljspeech" or cfg.dataset == "iiith_cvit_hindi":
-        preprocess_ljspeech(root_dir, out_dir, num_workers, tqdm=tqdm)
+    if cfg.dataset == "LJSpeech" or cfg.dataset == "IIITH_CVIT_Hindi":
+        preprocess_dataset(root_dir, out_dir, num_workers, tqdm=tqdm)
     else:
         raise NotImplementedError
 
@@ -163,7 +163,8 @@ def preprocess(root_dir, out_dir, num_workers):
 #     write_metadata(metadata, out_dir)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Preprocess dataset")
+    parser = argparse.ArgumentParser(
+        description="Preprocess dataset and split into train and eval splits")
 
     parser.add_argument("--dataset_dir",
                         help="Path to the root of the downloaded dataset",
