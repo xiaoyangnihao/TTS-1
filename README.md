@@ -36,7 +36,7 @@ Both the seq2seq model and the vocoder model need to be trained seperately. Trai
         python unicode_to_itrans_converter.py \
             --unicode_prompts_file <Path to the file containing unicode text prompts> \
             --itrans_prompts_file <Path to the output file> \
-            --lang_code <Code representing the Indic language>
+            --lang_code <Code representing the Indic language ("hi" in this case)>
         ```
 
 2. Edit the configuration parameters in `config/config.py` appropriate for the dataset to be used for training
