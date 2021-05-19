@@ -55,7 +55,7 @@ tts_model = {
 }
 
 tts_training = {
-    "batch_size": 8,
+    "batch_size": 4,
     "bucket_size_multiplier": 5,
     "num_steps": 250000,
     "checkpoint_interval": 10000,
