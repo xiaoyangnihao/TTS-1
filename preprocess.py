@@ -1,13 +1,9 @@
 """Dataset preprocessing"""
 import argparse
 import os
-from concurrent.futures import ProcessPoolExecutor
-from functools import partial
-from multiprocessing import cpu_count
 
 import librosa
 import numpy as np
-from tqdm import tqdm
 
 import config.config as cfg
 
@@ -64,16 +60,11 @@ def _mulaw_compression(wav):
     return wav
 
 
-def _process_utterance(mel_dir, qwav_dir, wav_path, text):
+def _process_utterance(wav, filename, mel_dir, qwav_dir):
     """Process a single wav file
     This writes the mel spectrogram as well as the quantized wav to disk and returns a tuple to write to the
     metadata.csv file
     """
-    filename = os.path.splitext(os.path.basename(wav_path))[0]
-
-    # Load wav file from disk
-    wav, _ = librosa.load(wav_path, sr=cfg.audio["sampling_rate"])
-
     peak = np.abs(wav).max()
     if peak >= 1:
         wav = wav / peak * 0.999
@@ -90,7 +81,7 @@ def _process_utterance(mel_dir, qwav_dir, wav_path, text):
     np.save(mel_path, mel)
     np.save(qwav_path, qwav)
 
-    return (filename, text, mel.shape[-1])
+    return mel.shape[-1]
 
 
 def write_metadata(metadata, out_file):
@@ -101,7 +92,7 @@ def write_metadata(metadata, out_file):
             file_writer.write("|".join([str(x) for x in m]) + "\n")
 
 
-def preprocess_dataset(root_dir, out_dir, num_workers=1, tqdm=lambda x: x):
+def preprocess_dataset(root_dir, out_dir):
     """Process dataset and write processed dataset to disk
     """
     #  Load dataset items from disk
@@ -125,15 +116,22 @@ def preprocess_dataset(root_dir, out_dir, num_workers=1, tqdm=lambda x: x):
     os.makedirs(mel_dir, exist_ok=True)
     os.makedirs(qwav_dir, exist_ok=True)
 
-    executor = ProcessPoolExecutor(max_workers=num_workers)
-    futures = []
+    train_metadata = []
     for text, wav_path in train_items:
-        futures.append(
-            executor.submit(
-                partial(_process_utterance, mel_dir, qwav_dir, wav_path,
-                        text)))
+        # Get filename of file being processed
+        filename = os.path.splitext(os.path.basename(wav_path))[0]
 
-    train_metadata = [future.result() for future in tqdm(futures)]
+        # Load wav file from disk
+        wav, _ = librosa.load(wav_path, sr=cfg.audio["sampling_rate"])
+
+        # Get length of wav file in seconds
+        wav_length = len(wav) / cfg.audio["sampling_rate"]
+
+        # Process only those wav files whose length is less than 10 seconds (this is to reduce the computational
+        # requirements of seq2seq processing using RNNs)
+        if wav_length <= 10:
+            num_frames = _process_utterance(wav, filename, mel_dir, qwav_dir)
+            train_metadata.append((filename, text, num_frames))
     write_metadata(train_metadata, os.path.join(out_dir, "train/train.csv"))
 
     # Process the eval split
@@ -149,18 +147,16 @@ def preprocess_dataset(root_dir, out_dir, num_workers=1, tqdm=lambda x: x):
     write_metadata(eval_metadata, os.path.join(out_dir, "eval/heldout.csv"))
 
 
-def preprocess(root_dir, out_dir, num_workers):
+def preprocess(root_dir, out_dir):
     """Preprocess the dataset
     """
     os.makedirs(out_dir, exist_ok=True)
 
     if cfg.dataset == "LJSpeech" or cfg.dataset == "IIITH_CVIT_Hindi":
-        preprocess_dataset(root_dir, out_dir, num_workers, tqdm=tqdm)
+        preprocess_dataset(root_dir, out_dir)
     else:
         raise NotImplementedError
 
-
-#     write_metadata(metadata, out_dir)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -175,9 +171,8 @@ if __name__ == "__main__":
                         required=True)
 
     args = parser.parse_args()
-    num_workers = cpu_count()
 
     dataset_dir = args.dataset_dir
     out_dir = args.out_dir
 
-    preprocess(dataset_dir, out_dir, num_workers)
+    preprocess(dataset_dir, out_dir)
