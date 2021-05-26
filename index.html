@@ -9,30 +9,19 @@
 
 <body>
     <header>
-        <h1>Recurrent Neural Network based End-to-End Text-to-Speech Systems</h1>
-        <p>A PyTorch implementation of Location-Relative Attention Mechanisms For Robust Long-Form Speech Synthesis</p>
+        <h1>
+            Recurrent Neural Network based End-to-End Text-to-Speech Systems
+        </h1>
         <hr>
     </header>
     <main>
-        <p>
-            This page contains synthesis samples generated using an End-to-End Speech Synthesis system, based on the
-            Tactoron2 model with modifications as described in <a href="https://arxiv.org/pdf/1910.10288.pdf">Location
+        <p> This page contains synthesis samples generated using an End-to-End Speech Synthesis system, based on the
+            Tactoron model with modifications as described in <a href="https://arxiv.org/pdf/1910.10288.pdf">Location
                 Relative Attention Mechanisms for Robust Long-Form Speech Synthesis</a>
 
-            The system consists of two parts:
-        <ol>
-            <li>
-                A Tacotron model with dynamic convolutional attention which modifies the hybrid location sensitive
-                attention mechanism to be purely location based, resulting in better generalization on long utterances.
-                This model takes text as input and predicts a sequence of mel-spectrogram frames as output (the seq2seq
-                model).
-            </li>
-            <li>
-                A WaveRNN based vocoder; which takes the mel-spectrogram predicted in the previous step as input and
-                generates a waveform as output (the vocoder model).
-            </li>
-        </ol>
-
+            <br />
+            The code to train the system on a dataset can be found at <a
+                href="https://github.com/anandaswarup/TTS">anandaswarup/TTS</a>
         </p>
     </main>
 </body>
