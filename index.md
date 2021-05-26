@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Recurrent Neural Network based End-to-End Text-to-Speech Systems
-tagline: nil
+tagline:
 description: nil
 ---
 End-to-End Speech Synthesis system, based on the Tactoron2 model with modifications as described in [Location Relative Attention Mechanisms for Robust Long-Form Speech Synthesis](https://arxiv.org/pdf/1910.10288.pdf)
