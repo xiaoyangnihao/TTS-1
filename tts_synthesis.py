@@ -12,7 +12,7 @@ from vocoder.model import WaveRNN
 
 if cfg.text_processor == "en":
     from text.en.processor import load_cmudict, symbol_to_id, text_to_sequence
-elif cfg.text_processor == "hi":
+elif cfg.text_processor == "indic":
     from text.indic.processor import symbol_to_id, text_to_sequence
 
 
@@ -43,7 +43,11 @@ def synthesize_all(synthesis_instances, seq2seq_checkpoint_path,
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Instantiate TTS (Tacotron) model
-    num_chars = len(symbol_to_id)
+    if cfg.text_processor == "en":
+        num_chars = len(symbol_to_id)
+    elif cfg.text_processor == "indic":
+        num_chars = len(symbol_to_id)
+
     tts_model = Tacotron(num_chars=num_chars)
     tts_model = tts_model.to(device)
     tts_model.eval()
@@ -72,7 +76,8 @@ def synthesize_all(synthesis_instances, seq2seq_checkpoint_path,
     vocoder_model.load_state_dict(vocoder_checkpoint["model"])
     vocoder_step = vocoder_checkpoint["step"]
 
-    cmudict = load_cmudict()
+    if cfg.text_processor == "en":
+        cmudict = load_cmudict()
 
     # Generate waveforms for all synthesis instances
     for fileid, text in synthesis_instances:
@@ -81,10 +86,8 @@ def synthesize_all(synthesis_instances, seq2seq_checkpoint_path,
         if cfg.text_processor == "en":
             text = torch.LongTensor(text_to_sequence(text,
                                                      cmudict)).unsqueeze(0)
-        elif cfg.text_processor == "hi":
-            text = torch.LongTensor(
-                text_to_sequence(text,
-                                 lang_code=cfg.text_processor)).unsqueeze(0)
+        elif cfg.text_processor == "indic":
+            text = torch.LongTensor(text_to_sequence(text)).unsqueeze(0)
         else:
             raise NotImplementedError
 
