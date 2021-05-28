@@ -1,5 +1,37 @@
 """Unicode to Common Label Set converter"""
 
+import argparse
+import re
+
+lang_code_mapping = {
+    "as": "Assamese",
+    "be": "Bengali",
+    "gj": "Gujarati",
+    "hi": "Hindi",
+    "ma": "Marathi",
+    "rj": "Rajasthani",
+    "ta": "Tamil",
+    "te": "Telugu"
+}
+
+
+def load_unicode_cls_mapping(lang_code):
+    """Load the unicode to cls mapping for a particular language
+    """
+    if lang_code in lang_code_mapping:
+        language = lang_code_mapping[lang_code]
+        with open(f"text/indic/Unicode_CLS_Mapping/{language}.txt",
+                  "r") as file_reader:
+            mapping = file_reader.readlines()
+
+        mapping = [line.strip("\n") for line in mapping]
+
+        for line in mapping:
+            codepoint, phone, phone_type = line.split()
+            print(codepoint, phone, phone_type)
+    else:
+        raise Exception(f"Language code {lang_code} not supported")
+
 
 def convert_prompts_file(in_file, out_file, lang_code):
     """Convert the prompts file from unicode to common label set
