@@ -2,7 +2,7 @@
 
 This repository contains code to train a End-to-End Speech Synthesis system. Both single speaker and multi-speaker models are supported.
 
-Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to ITRANS, which provides a common character representation for all Indic languages, before being used in the remainder of the voice building process. A parser to convert Indic text from unicode to ITRANS has been provided as part of the repository.
+Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to [Common Label Set](https://www.iitm.ac.in/donlab/tts/downloads/cls/cls_v2.1.6.pdf), which provides a common representation for similar sounds across all Indic languages, before being used in the remainder of the voice building process. A parser to convert Indic text from unicode to common label set has been provided as part of the repository.
  
 The system consists of two parts:
 
@@ -33,7 +33,7 @@ Both the seq2seq model and the vocoder model need to be trained seperately. Trai
        Once the dataset has been downloaded and extracted, convert the text prompts from unicode (Hindi) to ITRANS
 
         ```python
-        python unicode_to_itrans_converter.py \
+        python unicode_to_cls_converter.py \
             --unicode_prompts_file <Path to the file containing unicode text prompts> \
             --itrans_prompts_file <Path to the output file> \
             --lang_code <Code representing the Indic language ("hi" in this case)>
