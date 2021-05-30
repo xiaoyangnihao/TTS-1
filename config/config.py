@@ -1,8 +1,8 @@
 """Configuration Parameters"""
 
-dataset = "IIITH_CVIT_Hindi"  # The name of the dataset
+dataset = "LJSpeech"  # The name of the dataset
 
-text_processor = "indic"  # Currently supported -> english text: "en" and indic language text: "indic"
+text_processor = "en"  # Currently supported -> english text: "en" and indic language text: "indic"
 
 # Audio processing configuration
 audio = {
