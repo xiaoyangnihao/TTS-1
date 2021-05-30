@@ -19,8 +19,6 @@ from tts.model import Tacotron
 
 if cfg.text_processor == "en":
     from text.en.processor import symbol_to_id
-elif cfg.text_processor == "indic":
-    from text.indic.processor import symbol_to_id
 else:
     raise NotImplementedError
 
