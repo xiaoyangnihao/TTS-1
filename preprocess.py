@@ -152,7 +152,7 @@ def preprocess(root_dir, out_dir):
     """
     os.makedirs(out_dir, exist_ok=True)
 
-    if cfg.dataset == "LJSpeech" or cfg.dataset == "IIITH_CVIT_Hindi":
+    if cfg.dataset == "LJSpeech":
         preprocess_dataset(root_dir, out_dir)
     else:
         raise NotImplementedError
