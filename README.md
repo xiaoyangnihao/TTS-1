@@ -1,8 +1,8 @@
 # Recurrent Neural Network based Text-to-Speech systems
 
-This repository contains code to train a End-to-End Speech Synthesis system. Both single speaker and multi-speaker models are supported.
+This repository contains code to train a End-to-End Speech Synthesis system. Currently only single speaker models are supported, and the text frontend supports English.
 
-Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to [Common Label Set](https://www.iitm.ac.in/donlab/tts/downloads/cls/cls_v2.1.6.pdf), which provides a common representation for similar sounds across all Indic languages, before being used in the remainder of the voice building process.
+<!--as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to [Common Label Set](https://www.iitm.ac.in/donlab/tts/downloads/cls/cls_v2.1.6.pdf), which provides a common representation for similar sounds across all Indic languages, before being used in the remainder of the voice building process.-->
 
 The system consists of two parts:
 
@@ -10,7 +10,7 @@ The system consists of two parts:
 
 2. A WaveRNN based vocoder; which takes the mel-spectrogram predicted in the previous step as input and generates a waveform as output (the vocoder model).
 
-All audio processing parameters, model hyperparameters, training configuration etc are specified in the `config/config.py` folder. 
+All audio processing parameters, model hyperparameters, training configuration etc are specified in the `config/config.py` file. 
 
 Both the seq2seq model and the vocoder model need to be trained seperately. Training using automatic mixed precision is supported.
 
@@ -88,3 +88,7 @@ This code is based on the code in the following repositories
 1. [Location Relative Attention Mechanisms for Robust Long-Form Speech Synthesis](https://arxiv.org/pdf/1910.10288.pdf)
 2. [Tacotron: Towards End-To-End Speech Synthesis](https://arxiv.org/pdf/1703.10135.pdf)
 3. [Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions](https://arxiv.org/pdf/1712.05884.pdf)
+
+## To-Do
+- [ ] Support for multi-speakers models
+- [ ] Support for Indic languages 
