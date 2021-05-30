@@ -2,8 +2,8 @@
 
 This repository contains code to train a End-to-End Speech Synthesis system. Both single speaker and multi-speaker models are supported.
 
-Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to [Common Label Set](https://www.iitm.ac.in/donlab/tts/downloads/cls/cls_v2.1.6.pdf), which provides a common representation for similar sounds across all Indic languages, before being used in the remainder of the voice building process. A parser to convert Indic text from unicode to common label set has been provided as part of the repository.
- 
+Currrently, the text frontend supports English, as well as the following Indic languages: Assamese, Bengali, Gujarati, Hindi, Marathi, Rajasthani, Tamil, Telugu. In the case of Indic languages, the text is first transformed from unicode to [Common Label Set](https://www.iitm.ac.in/donlab/tts/downloads/cls/cls_v2.1.6.pdf), which provides a common representation for similar sounds across all Indic languages, before being used in the remainder of the voice building process.
+
 The system consists of two parts:
 
 1. A Tacotron model with Dynamic Convolutional Attention which modifies the hybrid location sensitive attention mechanism to be purely location based as described in [Location Relative Attention Mechanisms for Robust Long-Form Speech Synthesis](https://arxiv.org/pdf/1910.10288.pdf), resulting in better generalization on long utterances. This model takes text (in the form of character sequence) as input and predicts a sequence of mel-spectrogram frames as output (the seq2seq model).
@@ -24,19 +24,6 @@ Both the seq2seq model and the vocoder model need to be trained seperately. Trai
         ```bash
         wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
         tar -xvjf LJSpeech-1.1.tar.bz2
-        ```
-    
-    2. Hindi single speaker dataset [IIITH-CVIT-IndicSpeech](http://cvit.iiit.ac.in/research/projects/cvit-projects/text-to-speech-dataset-for-indian-languages):
-       
-       Request access to the dataset by filling in the google form available at the webpage. Once access has been granted, download and extract the dataset
-       
-       Once the dataset has been downloaded and extracted, convert the text prompts from unicode (Hindi) to ITRANS
-
-        ```python
-        python unicode_to_cls_converter.py \
-            --unicode_prompts_file <Path to the file containing unicode text prompts> \
-            --itrans_prompts_file <Path to the output file> \
-            --lang_code <Code representing the Indic language ("hi" in this case)>
         ```
 
 2. Edit the configuration parameters in `config/config.py` appropriate for the dataset to be used for training
