@@ -12,9 +12,7 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
 if cfg.text_processor == "en":
-    from text.en.processor import load_cmudict, symbol_to_id, text_to_sequence
-elif cfg.text_processor == "indic":
-    from text.indic.processor import symbol_to_id, text_to_sequence
+    from text.en.processor import symbol_to_id, text_to_sequence
 else:
     raise NotImplementedError
 
@@ -99,9 +97,6 @@ class TTSDataset(Dataset):
             os.path.join(train_data_dir, "train.csv"))
         self.lengths = [instance[2] for instance in self.training_instances]
 
-        if cfg.text_processor == "en":
-            self.cmudict = load_cmudict()
-
     def __len__(self):
         return len(self.training_instances)
 
@@ -113,8 +108,6 @@ class TTSDataset(Dataset):
         mel = np.load(mel_path)
 
         if cfg.text_processor == "en":
-            text = text_to_sequence(text, self.cmudict)
-        elif cfg.text_processor == "indic":
             text = text_to_sequence(text)
 
         return (torch.LongTensor(text),
