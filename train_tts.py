@@ -77,10 +77,7 @@ def train_model(data_dir, checkpoint_dir, alignments_dir,
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Instantiate the model
-    if cfg.text_processor == "en":
-        num_chars = len(symbol_to_id)
-    elif cfg.text_processor == "indic":
-        num_chars = len(symbol_to_id)
+    num_chars = len(symbol_to_id)
 
     model = Tacotron(num_chars=num_chars)
     model = model.to(device)
