@@ -107,8 +107,7 @@ class TTSDataset(Dataset):
         mel_path = os.path.join(self.train_data_dir, "mel", filename + ".npy")
         mel = np.load(mel_path)
 
-        if cfg.text_processor == "en":
-            text = text_to_sequence(text)
+        text = text_to_sequence(text)
 
         return (torch.LongTensor(text),
                 torch.FloatTensor(mel).transpose_(0, 1).contiguous())
